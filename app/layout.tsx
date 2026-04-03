@@ -1,15 +1,22 @@
-import type {Metadata} from 'next';
-import './globals.css'; // Global styles
+import type { Metadata } from 'next';
+import { Outfit } from 'next/font/google';
+import './globals.css';
+
+const outfit = Outfit({ 
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-outfit'
+});
 
 export const metadata: Metadata = {
-  title: 'My Google AI Studio App',
-  description: 'My Google AI Studio App',
+  title: 'BuildFlow CRM | Real Estate Management Platform',
+  description: 'Empowering real estate builders with lead centralization, WhatsApp automation, and visual pipelines.',
 };
 
-export default function RootLayout({children}: {children: React.ReactNode}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body suppressHydrationWarning>{children}</body>
+    <html lang="en" className={outfit.variable}>
+      <body suppressHydrationWarning className="font-outfit">{children}</body>
     </html>
   );
 }
