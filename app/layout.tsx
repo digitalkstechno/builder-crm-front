@@ -13,10 +13,16 @@ export const metadata: Metadata = {
   description: 'Empowering real estate builders with lead centralization, WhatsApp automation, and visual pipelines.',
 };
 
+import { Providers } from '@/redux/Providers';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={outfit.variable}>
-      <body suppressHydrationWarning className="font-outfit">{children}</body>
+      <body suppressHydrationWarning className="font-outfit">
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }

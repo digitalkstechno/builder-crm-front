@@ -55,7 +55,26 @@ const SidebarItem = ({
   );
 };
 
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/redux/store';
+import { logout } from '@/redux/slices/authSlice';
+import { useRouter } from 'next/navigation';
+import { LogOut } from 'lucide-react';
+
 export default function Sidebar() {
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const { user, builder } = useSelector((state: RootState) => state.auth);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    router.push('/');
+  };
+
+  const name = user?.fullName || "Raj Mehta";
+  const initials = name.split(' ').map((n: string) => n[0]).join('').toUpperCase();
+  const company = builder?.companyName || "Skyline Infra";
+
   return (
     <aside className="w-64 bg-white border-r border-slate-200 flex flex-col fixed inset-y-0 z-50">
       <div className="p-6 border-b border-slate-100">
@@ -63,14 +82,17 @@ export default function Sidebar() {
           <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-indigo-200">
             BF
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <h1 className="font-bold text-slate-900 leading-tight">BuildFlow</h1>
-            <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest bg-indigo-50 px-1.5 py-0.5 rounded">Skyline Infra</span>
+            <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest bg-indigo-50 px-1.5 py-0.5 rounded block truncate">
+              {company}
+            </span>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-8 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-8 overflow-y-auto custom-scrollbar">
+        {/* ... (Sidebar Navigation Items) */}
         <div>
           <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-4">Overview</p>
           <div className="space-y-1">
@@ -113,14 +135,21 @@ export default function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-slate-100">
-        <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors">
-          <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm">
-            RM
+        <div className="flex items-center gap-3 p-2 rounded-xl group relative">
+          <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm shadow-sm">
+            {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-900 truncate">Raj Mehta</p>
-            <p className="text-[10px] font-medium text-slate-500 truncate">Admin · Skyline Infra</p>
+            <p className="text-sm font-bold text-slate-900 truncate">{name}</p>
+            <p className="text-[10px] font-medium text-slate-500 truncate">Admin · {company}</p>
           </div>
+          <button 
+            onClick={handleLogout}
+            className="p-2 mr-[-8px] text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+            title="Logout"
+          >
+            <LogOut size={18} />
+          </button>
         </div>
       </div>
     </aside>

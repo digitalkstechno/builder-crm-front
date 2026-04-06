@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Building2, 
   Users, 
@@ -19,29 +19,36 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
+import RegistrationModal from '@/components/RegistrationModal';
+import LoginModal from '@/components/LoginModal';
 
-const Navbar = () => (
+const Navbar = ({ onLoginClick }: { onLoginClick: () => void }) => (
   <header className="fixed top-0 left-0 right-0 z-[100] px-6 py-4">
     <nav className="max-w-7xl mx-auto flex items-center justify-between p-2 px-6 rounded-2xl bg-white/70 backdrop-blur-md border border-white/20 shadow-lg shadow-indigo-500/5">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
         <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-indigo-200">
           BF
         </div>
-        <span className="font-bold text-xl tracking-tight text-slate-900">BuildFlow</span>
+        <span className="font-bold text-xl tracking-tight text-slate-900 leading-none">BuildFlow</span>
       </div>
       
-      <div className="hidden md:flex items-center gap-8">
-        {['Features', 'Pricing', 'Company', 'Support'].map(item => (
-          <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors">
+      <div className="hidden md:flex items-center gap-10">
+        {['Features', 'Pricing', 'Company'].map(item => (
+          <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-bold text-slate-500 hover:text-indigo-600 transition-colors uppercase tracking-[0.1em]">
             {item}
           </a>
         ))}
       </div>
 
       <div className="flex items-center gap-4">
-        <Link href="/dashboard" className="text-sm font-bold text-slate-600 hover:text-slate-900 px-4 py-2 transition-colors">Log In</Link>
-        <Link href="/dashboard" className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-100">
-          Get Started
+        <button 
+          onClick={onLoginClick}
+          className="text-sm font-bold text-slate-600 hover:text-slate-900 px-6 py-2.5 transition-colors uppercase tracking-[0.1em]"
+        >
+          Sign In
+        </button>
+        <Link href="#pricing" className="bg-slate-900 hover:bg-slate-800 text-white px-8 py-3.5 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-slate-900/10 uppercase tracking-[0.1em]">
+          Join Now
         </Link>
       </div>
     </nav>
@@ -61,7 +68,7 @@ const FeatureCard = ({ icon: Icon, title, description, color }: any) => (
   </motion.div>
 );
 
-const PricingCard = ({ name, price, description, features, featured, delay }: any) => (
+const PricingCard = ({ plan, onSubscribe, featured, delay }: any) => (
   <motion.div
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -80,15 +87,22 @@ const PricingCard = ({ name, price, description, features, featured, delay }: an
       </div>
     )}
     <div className="mb-8">
-      <h3 className="font-bold text-lg mb-2">{name}</h3>
-      <p className={cn("text-sm", featured ? "text-slate-400" : "text-slate-500")}>{description}</p>
+      <h3 className="font-bold text-lg mb-2">{plan.planName}</h3>
+      <p className={cn("text-sm", featured ? "text-slate-400" : "text-slate-500")}>Professional tools for builders</p>
     </div>
     <div className="mb-10 flex items-baseline gap-1">
-      <span className="text-4xl font-bold tracking-tight">{price}</span>
-      <span className={cn("text-xs font-semibold", featured ? "text-slate-400" : "text-slate-500")}>/mo</span>
+      <span className="text-4xl font-bold tracking-tight">₹{plan.price.toLocaleString()}</span>
+      <span className={cn("text-xs font-semibold", featured ? "text-slate-400" : "text-slate-500")}>/{plan.duration === 'Monthly' ? 'mo' : plan.duration}</span>
     </div>
     <div className="space-y-4 mb-10 flex-1">
-      {features.map((feature: string, i: number) => (
+      {[
+        `${plan.noOfStaff} User Seats`,
+        `${plan.noOfSites} Real Estate Projects`,
+        `${plan.noOfWhatsapp} WhatsApp Numbers`,
+        'Lead Centralization',
+        'Sales Pipeline CRM',
+        'Advanced Analytics'
+      ].map((feature: string, i: number) => (
         <div key={i} className="flex items-start gap-3 text-sm font-medium">
           <div className={cn("mt-0.5 rounded-full p-0.5 shrink-0", featured ? "bg-indigo-500/20 text-indigo-400" : "bg-emerald-100 text-emerald-600")}>
             <Check size={12} />
@@ -97,22 +111,45 @@ const PricingCard = ({ name, price, description, features, featured, delay }: an
         </div>
       ))}
     </div>
-    <button className={cn(
-      "py-4 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2",
-      featured 
-        ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/30" 
-        : "bg-slate-100 hover:bg-slate-200 text-slate-900"
-    )}>
+    <button 
+      onClick={() => onSubscribe(plan)}
+      className={cn(
+        "py-4 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 mt-auto",
+        featured 
+          ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/30" 
+          : "bg-slate-100 hover:bg-slate-200 text-slate-900"
+      )}
+    >
       Subscribe Now
       <ArrowRight size={16} />
     </button>
   </motion.div>
 );
 
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '@/redux/store';
+import { fetchPlans } from '@/redux/slices/planSlice';
+
 export default function LandingPage() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { plans, loading: isLoading, error } = useSelector((state: RootState) => state.plan);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+
+  useEffect(() => {
+    dispatch(fetchPlans());
+  }, [dispatch]);
+
+  const handleSubscribe = (plan: any) => {
+    setSelectedPlan(plan);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900 overflow-x-hidden">
-      <Navbar />
+      <Navbar onLoginClick={() => setIsLoginOpen(true)} />
 
       <main>
         {/* Hero Section */}
@@ -163,7 +200,6 @@ export default function LandingPage() {
               >
                 <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-3xl blur-[100px] opacity-20 -z-10 scale-90" />
                 <div className="relative bg-white/40 backdrop-blur-sm p-4 rounded-[3rem] border border-white/50 shadow-2xl">
-                   {/* Here we'd output the generated image in a production setting */}
                    <div className="aspect-[4/3] rounded-[2rem] bg-indigo-50 border border-indigo-100 overflow-hidden relative shadow-inner">
                       <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/5 to-purple-600/5" />
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -171,7 +207,6 @@ export default function LandingPage() {
                            <LayoutDashboard size={120} strokeWidth={1} />
                         </div>
                       </div>
-                      {/* Floating UI Elements */}
                       <motion.div
                         animate={{ y: [0, -10, 0] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -242,59 +277,62 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-
-        {/* Pricing Section */}
         <section id="pricing" className="py-24 px-6 bg-slate-50 relative overflow-hidden">
           <div className="max-w-7xl mx-auto relative z-10">
             <div className="text-center max-w-3xl mx-auto mb-20">
               <h2 className="text-xs font-bold text-indigo-600 uppercase tracking-[0.2em] mb-4">Investment Plans</h2>
               <h3 className="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight mb-6">Choose the perfect scale for your vision</h3>
-              <p className="text-slate-500 font-medium">Simple, transparent pricing. Risk-free for 14 days.</p>
+              <p className="text-slate-500 font-medium">Simple, transparent pricing for every stage of growth.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              <PricingCard 
-                name="Starter"
-                price="₹4,999"
-                description="For growing individual builders"
-                delay={0}
-                features={[
-                  "Up to 5 User Seats",
-                  "1 WhatsApp API Number",
-                  "500 Leads / mo",
-                  "2 Real Estate Projects",
-                  "Standard Support"
-                ]}
-              />
-              <PricingCard 
-                name="Growth"
-                price="₹12,499"
-                description="Perfect for mid-sized firms"
-                featured={true}
-                delay={0.1}
-                features={[
-                  "Up to 20 User Seats",
-                  "3 WhatsApp API Numbers",
-                  "5,000 Leads / mo",
-                  "10 Real Estate Projects",
-                  "Custom Lead Sources",
-                  "Priority Support"
-                ]}
-              />
-              <PricingCard 
-                name="Enterprise"
-                price="₹29,999"
-                description="Global scale for market leaders"
-                delay={0.2}
-                features={[
-                  "Unlimited User Seats",
-                  "10 WhatsApp API Numbers",
-                  "Unlimited Lead Ingestion",
-                  "Unlimited Projects",
-                  "Dedicated Account Manager",
-                  "24/7 Priority Concierge"
-                ]}
-              />
+              {isLoading ? (
+                // Skeleton Loading State
+                [1, 2, 3].map((n) => (
+                  <div key={n} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 h-[500px] animate-pulse">
+                    <div className="h-4 w-24 bg-slate-100 rounded-full mb-4" />
+                    <div className="h-8 w-40 bg-slate-200 rounded-xl mb-6" />
+                    <div className="h-12 w-32 bg-slate-100 rounded-xl mb-10" />
+                    <div className="space-y-4 mb-10">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="flex gap-3">
+                          <div className="w-5 h-5 bg-slate-100 rounded-full" />
+                          <div className="h-4 flex-1 bg-slate-100 rounded-lg" />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-auto h-14 w-full bg-slate-100 rounded-2xl" />
+                  </div>
+                ))
+              ) : error ? (
+                <div className="col-span-full py-20 text-center">
+                  <div className="bg-red-50 text-red-600 px-6 py-4 rounded-2xl border border-red-100 inline-block mb-4">
+                    <p className="font-bold">Error: {error}</p>
+                  </div>
+                  <br />
+                  <button 
+                    onClick={() => window.location.reload()}
+                    className="text-sm font-bold text-indigo-600 hover:text-indigo-700 underline"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              ) : plans.length > 0 ? (
+                plans.map((plan, index) => (
+                  <PricingCard 
+                    key={plan._id}
+                    plan={plan}
+                    onSubscribe={handleSubscribe}
+                    featured={index === 1}
+                    delay={index * 0.1}
+                  />
+                ))
+              ) : (
+                <div className="col-span-full py-20 text-center">
+                  <p className="text-slate-400 font-medium text-lg">No subscription plans available at the moment.</p>
+                  <p className="text-slate-500 text-sm mt-2">Please check back later or contact support.</p>
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -323,6 +361,17 @@ export default function LandingPage() {
           </div>
         </footer>
       </main>
+
+      <RegistrationModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        plan={selectedPlan}
+      />
+
+      <LoginModal 
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+      />
     </div>
   );
 }
