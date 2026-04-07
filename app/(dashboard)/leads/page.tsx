@@ -197,7 +197,7 @@ export default function LeadsPage() {
           <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl w-fit">
             <button className="px-6 py-2 bg-white text-slate-900 shadow-sm rounded-xl text-sm font-bold transition-all">All Leads</button>
             <button className="px-6 py-2 text-slate-500 hover:text-slate-900 rounded-xl text-sm font-bold transition-all">My Leads</button>
-            <button className="px-6 py-2 text-slate-500 hover:text-slate-900 rounded-xl text-sm font-bold transition-all">Unassigned</button>
+            {/* <button className="px-6 py-2 text-slate-500 hover:text-slate-900 rounded-xl text-sm font-bold transition-all">Unassigned</button> */}
           </div>
 
           <div className="h-8 w-[1px] bg-slate-200 mx-2 hidden md:block" />
