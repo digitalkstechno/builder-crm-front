@@ -183,7 +183,7 @@ export default function TeamPage() {
             {item.name.split(' ').map((n: string) => n[0]).join('')}
           </div>
           <div>
-            <div className="text-sm font-black text-slate-900 tracking-tight">{item.name}</div>
+            <div className="text-sm font-medium text-slate-900 tracking-tight">{item.name}</div>
             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.email}</div>
           </div>
         </div>
