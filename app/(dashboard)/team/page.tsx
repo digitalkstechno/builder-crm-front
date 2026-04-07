@@ -21,6 +21,8 @@ import {
   Briefcase
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import TeamModal from '@/components/modals/TeamModal';
+import CommonTable from '@/components/ui/CommonTable';
 
 const TEAM_MEMBERS = [
   {
@@ -153,6 +155,108 @@ const MemberCard = ({ member }: { member: typeof TEAM_MEMBERS[0] }) => (
 
 export default function TeamPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const filteredMembers = TEAM_MEMBERS.filter(m => 
+    m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    m.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    m.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const ITEMS_PER_PAGE = 6;
+  const paginatedMembers = filteredMembers.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const columns = [
+    {
+      header: 'Member Information',
+      key: 'name',
+      render: (item: any) => (
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 font-black text-[10px] border border-slate-200 uppercase">
+            {item.name.split(' ').map((n: string) => n[0]).join('')}
+          </div>
+          <div>
+            <div className="text-sm font-black text-slate-900 tracking-tight">{item.name}</div>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.email}</div>
+          </div>
+        </div>
+      )
+    },
+    {
+      header: 'Role & Status',
+      key: 'role',
+      render: (item: any) => (
+        <div className="space-y-1">
+          <div className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5">
+            <Shield size={10} /> {item.role}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className={cn(
+              "w-1.5 h-1.5 rounded-full",
+              item.status === 'online' ? "bg-emerald-500" :
+              item.status === 'away' ? "bg-amber-500" : "bg-slate-300"
+            )} />
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{item.status}</span>
+          </div>
+        </div>
+      )
+    },
+    {
+      header: 'Contact',
+      key: 'phone',
+      render: (item: any) => (
+        <div className="text-[11px] font-black text-slate-600 tracking-widest">
+          {item.phone}
+        </div>
+      )
+    },
+    {
+      header: 'Assigned Sites',
+      key: 'sites',
+      render: (item: any) => (
+        <div className="flex flex-wrap gap-1">
+          {item.sites.map((site: string, i: number) => (
+            <span key={i} className="px-2 py-0.5 bg-slate-50 border border-slate-100 rounded-md text-[9px] text-slate-500 font-black uppercase tracking-tighter">
+              {site}
+            </span>
+          ))}
+        </div>
+      )
+    },
+    {
+      header: 'Performance',
+      key: 'performance',
+      render: (item: any) => (
+        <div className="flex flex-col gap-1.5 min-w-[100px]">
+          <div className="flex justify-between text-[9px] font-black uppercase tracking-widest">
+            <span className="text-slate-400">Score</span>
+            <span className="text-indigo-600">{item.performance}%</span>
+          </div>
+          <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-indigo-600 rounded-full" 
+              style={{ width: `${item.performance}%` }} 
+            />
+          </div>
+        </div>
+      )
+    },
+    {
+      header: 'Actions',
+      key: 'actions',
+      className: 'text-right',
+      render: () => (
+        <button className="p-2 text-slate-300 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all">
+          <MoreVertical size={16} />
+        </button>
+      )
+    }
+  ];
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -163,28 +267,49 @@ export default function TeamPage() {
             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
               <Users size={24} />
             </div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Team Management</h1>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Team Management</h1>
           </div>
           <p className="text-slate-500 font-medium">Manage user roles, site-wise assignments and track performance.</p>
         </div>
+        
         <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl">
+            <button 
+              onClick={() => setViewMode('grid')}
+              className={cn(
+                "p-2.5 rounded-lg transition-all",
+                viewMode === 'grid' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+              )}
+            >
+              <LayoutGrid size={18} />
+            </button>
+            <button 
+              onClick={() => setViewMode('table')}
+              className={cn(
+                "p-2.5 rounded-lg transition-all",
+                viewMode === 'table' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+              )}
+            >
+              <List size={18} />
+            </button>
+          </div>
+
           <div className="relative hidden lg:block">
             <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input 
               type="text" 
               placeholder="Search members..." 
-              className="pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all w-72 shadow-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all w-72 shadow-sm"
             />
           </div>
-          <button className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-500 hover:bg-slate-50 transition-all shadow-sm">
-            <Filter size={20} />
-          </button>
           <button 
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3.5 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-indigo-200"
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3.5 rounded-2xl text-sm font-black transition-all shadow-xl shadow-indigo-200 uppercase tracking-widest"
           >
             <UserPlus size={20} />
-            Add Team Member
+            Add Member
           </button>
         </div>
       </div>
@@ -192,7 +317,7 @@ export default function TeamPage() {
       {/* Stats Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { label: 'Total Team', value: '18 Members', icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+          { label: 'Total Team', value: `${TEAM_MEMBERS.length} Members`, icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-50' },
           { label: 'Avg Performance', value: '86%', icon: Star, color: 'text-amber-600', bg: 'bg-amber-50' },
           { label: 'Active Sites', value: '12 Projects', icon: Building, color: 'text-emerald-600', bg: 'bg-emerald-50' },
           { label: 'Revenue Generated', value: '₹14.2Cr', icon: IndianRupee, color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -202,142 +327,74 @@ export default function TeamPage() {
               <stat.icon size={24} />
             </div>
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
-              <p className="text-xl font-bold text-slate-900 mt-0.5">{stat.value}</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
+              <p className="text-xl font-black text-slate-900 mt-0.5">{stat.value}</p>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Team Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-10">
-        {TEAM_MEMBERS.map(member => (
-          <MemberCard key={member.id} member={member} />
-        ))}
-        
-        {/* Add Member Placeholder Card */}
-        <button 
-          onClick={() => setIsAddModalOpen(true)}
-          className="h-full min-h-[340px] border-2 border-dashed border-slate-200 rounded-[2.5rem] flex flex-col items-center justify-center p-8 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all group"
-        >
-          <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-white group-hover:text-indigo-600 transition-all shadow-sm mb-4">
-            <UserPlus size={32} />
-          </div>
-          <p className="text-lg font-bold text-slate-400 group-hover:text-indigo-600 transition-all">Add New User</p>
-          <p className="text-sm text-slate-400 mt-1 text-center">Onboard a new sales executive or manager to your team.</p>
-        </button>
-      </div>
-
-      {/* Add Member Modal */}
-      <AnimatePresence>
-        {isAddModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsAddModalOpen(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" 
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 40 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden"
+      {/* Content View Toggle */}
+      <AnimatePresence mode="wait">
+        {viewMode === 'grid' ? (
+          <motion.div 
+            key="grid"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-10"
+          >
+            {paginatedMembers.map(member => (
+              <MemberCard key={member.id} member={member} />
+            ))}
+            
+            <button 
+              onClick={() => setIsAddModalOpen(true)}
+              className="h-full min-h-[340px] border-2 border-dashed border-slate-200 rounded-[2.5rem] flex flex-col items-center justify-center p-8 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all group"
             >
-              <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <div>
-                  <h3 className="text-2xl font-bold text-slate-900">Add Team Member</h3>
-                  <p className="text-sm text-slate-400 mt-1">Configure roles and site access for your new team member.</p>
-                </div>
-                <button 
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="p-3 text-slate-400 hover:text-slate-900 hover:bg-white rounded-2xl transition-all shadow-sm border border-transparent hover:border-slate-100"
-                >
-                  <X size={20} />
-                </button>
+              <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-white group-hover:text-indigo-600 transition-all shadow-sm mb-4">
+                <UserPlus size={32} />
               </div>
-              
-              <form className="p-8 space-y-8">
-                <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
-                      <div className="relative">
-                        <Users size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input type="text" placeholder="e.g. Rahul Sharma" className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-medium" />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Work Email</label>
-                      <div className="relative">
-                        <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input type="email" placeholder="rahul@skylineinfra.com" className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-medium" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Select Role</label>
-                      <div className="relative">
-                        <Shield size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <select className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium appearance-none outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all">
-                          <option>Sales Manager</option>
-                          <option>Sales Executive</option>
-                          <option>Relationship Manager</option>
-                          <option>Project Admin</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
-                      <div className="relative">
-                        <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input type="text" placeholder="+91 98765 43210" className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-medium" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Site Assignments</label>
-                    <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
-                      <p className="text-xs text-slate-500 mb-4 font-medium flex items-center gap-2">
-                        <Building size={14} /> Assign user to specific projects:
-                      </p>
-                      <div className="grid grid-cols-2 gap-3">
-                        {['Skyline Heights', 'Skyline Grand', 'Ocean View Residency', 'Emerald Woods'].map((site, i) => (
-                          <label key={i} className="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl cursor-pointer hover:border-indigo-200 transition-all">
-                            <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
-                            <span className="text-xs font-bold text-slate-700">{site}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <button 
-                    type="button"
-                    onClick={() => setIsAddModalOpen(false)}
-                    className="flex-1 px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-bold transition-all active:scale-95"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    type="submit"
-                    className="flex-1 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-xl shadow-indigo-200 active:scale-95 flex items-center justify-center gap-2"
-                  >
-                    <CheckCircle2 size={18} />
-                    Onboard Member
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
+              <p className="text-lg font-black text-slate-400 group-hover:text-indigo-600 transition-all uppercase tracking-tight">Add New User</p>
+              <p className="text-xs font-bold text-slate-400 mt-1 text-center">Onboard a new sales executive or manager to your team.</p>
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="table"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <CommonTable 
+              title="Workforce Directory"
+              columns={columns}
+              data={paginatedMembers}
+              loading={false}
+              searchValue={searchTerm}
+              onSearchChange={setSearchTerm}
+              onPageChange={setCurrentPage}
+              pagination={{
+                totalItems: filteredMembers.length,
+                totalPages: Math.ceil(filteredMembers.length / ITEMS_PER_PAGE),
+                currentPage: currentPage,
+                limit: ITEMS_PER_PAGE
+              }}
+              searchPlaceholder="Filter workforce..."
+            />
+          </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Add Member Modal */}
+      <TeamModal 
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSubmit={(e) => {
+          e.preventDefault();
+          setIsAddModalOpen(false);
+        }}
+      />
     </div>
   );
 }

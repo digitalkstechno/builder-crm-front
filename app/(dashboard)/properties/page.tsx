@@ -16,7 +16,7 @@ import {
   Image as ImageIcon,
   Layout
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import PropertyModal from '@/components/modals/PropertyModal';
 
@@ -213,15 +213,18 @@ export default function PropertiesPage() {
           </div>
       </div>
 
-      {/* New/Edit Property Modal */}
+      {/* Add Project Modal */}
       <PropertyModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         formData={formData}
         setFormData={setFormData}
-        onSubmit={handleSubmit}
-        mockSites={mockSites}
-        propertyTypes={propertyTypes}
+        onSubmit={(e) => {
+          e.preventDefault();
+          setIsModalOpen(false);
+        }}
+        mockSites={['Skyline Heights', 'Skyline Grand', 'Ocean View Residency']}
+        propertyTypes={['Residential', 'Commercial', 'Mixed Use', 'Plotting']}
       />
 
       {/* View Property Details Modal */}

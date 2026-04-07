@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { 
   CheckCircle2, 
@@ -18,6 +18,7 @@ import {
   RefreshCcw
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import StatusModal from '@/components/modals/StatusModal';
 
 const SYSTEM_STATUS = [
   { name: 'Core API Server', status: 'operational', uptime: '99.98%', latency: '42ms', icon: Server },
@@ -50,6 +51,8 @@ const StatusBadge = ({ status }: { status: string }) => (
 );
 
 export default function StatusPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* Header */}
@@ -68,12 +71,24 @@ export default function StatusPage() {
             <RefreshCcw size={18} />
             Refresh Data
           </button>
-          <button className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl text-sm font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-200">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl text-sm font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-200"
+          >
             <Zap size={18} />
             Run Diagnostics
           </button>
         </div>
       </div>
+
+      <StatusModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={() => {
+          setIsModalOpen(false);
+          // logic here
+        }}
+      />
 
       {/* Main Status Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

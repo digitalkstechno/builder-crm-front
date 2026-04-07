@@ -20,7 +20,11 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { LEADS as INITIAL_LEADS, STAGES, Lead } from '@/lib/mockData';
+import { LEADS as INITIAL_LEADS, STAGES as DEFAULT_STAGES, Lead } from '@/lib/mockData';
+import LeadModal from '@/components/modals/LeadModal';
+
+// You can eventually fetch this from the admin status page configuration
+const STAGES = DEFAULT_STAGES;
 
 const LeadRow = ({ lead }: { lead: Lead }) => (
   <tr className="group hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-0">
@@ -291,119 +295,14 @@ export default function LeadsPage() {
       </AnimatePresence>
 
       {/* Add Lead Modal */}
-      <AnimatePresence>
-        {isAddModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsAddModalOpen(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" 
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 40 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className="relative w-full max-w-xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20"
-            >
-              <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900">Add New Lead</h3>
-                  <p className="text-sm text-slate-400 mt-1">Fill in the details to create a new potential customer.</p>
-                </div>
-                <button 
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="p-3 text-slate-400 hover:text-slate-900 hover:bg-white rounded-2xl transition-all shadow-sm border border-transparent hover:border-slate-100"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              
-              <form className="p-8 space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
-                    <div className="relative">
-                      <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <input type="text" placeholder="e.g. Rahul Sharma" className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-medium" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
-                    <div className="relative">
-                      <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <input type="text" placeholder="+91 98765 43210" className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-medium" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Site / Project</label>
-                    <div className="relative">
-                      <Building size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <select className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-medium appearance-none">
-                        <option>Skyline Heights</option>
-                        <option>Skyline Grand</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Source</label>
-                    <div className="relative">
-                      <Target size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <select className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-medium appearance-none">
-                        <option>WhatsApp</option>
-                        <option>Facebook</option>
-                        <option>Website</option>
-                        <option>Walk-in</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Budget Range</label>
-                    <div className="relative">
-                      <IndianRupee size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <input type="text" placeholder="e.g. ₹80L - ₹1Cr" className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-medium" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Assign Agent</label>
-                    <div className="relative">
-                      <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <select className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-medium appearance-none">
-                        <option>Auto Assign (Round Robin)</option>
-                        <option>Kavya Reddy</option>
-                        <option>Nikhil Mehta</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-6 flex gap-4">
-                  <button 
-                    type="button"
-                    onClick={() => setIsAddModalOpen(false)}
-                    className="flex-1 px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-[1.25rem] font-bold transition-all active:scale-95"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    type="submit"
-                    className="flex-1 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[1.25rem] font-bold transition-all shadow-xl shadow-indigo-200 active:scale-95"
-                  >
-                    Create Lead
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <LeadModal 
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSubmit={(e) => {
+          e.preventDefault();
+          setIsAddModalOpen(false);
+        }}
+      />
     </div>
   );
 }
