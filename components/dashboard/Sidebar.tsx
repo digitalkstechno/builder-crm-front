@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
+  Activity,
   Users, 
   GitMerge, 
   Bell, 
@@ -97,6 +98,7 @@ export default function Sidebar() {
           <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-4">Overview</p>
           <div className="space-y-1">
             <SidebarItem icon={LayoutDashboard} label="Dashboard" href="/dashboard" />
+            <SidebarItem icon={Activity} label="System Status" href="/status" />
           </div>
         </div>
 
@@ -104,7 +106,6 @@ export default function Sidebar() {
           <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-4">Core</p>
           <div className="space-y-1">
             <SidebarItem icon={Users} label="Leads" href="/leads" badge={47} />
-            <SidebarItem icon={GitMerge} label="Pipeline" href="/pipeline" />
             <SidebarItem icon={Bell} label="Reminders" href="/reminders" badge={8} />
           </div>
         </div>
