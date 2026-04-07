@@ -47,7 +47,9 @@ export default function CommonDialog({
             {/* Header */}
             <div className="px-5 py-4 border-b border-slate-50 flex justify-between items-center bg-white">
               <div className="flex flex-col">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.15em]">{title}</h3>
+               <h3 className="text-sm font-medium text-slate-900 tracking-[0.15em]">
+  {title}
+</h3>
                 <div className="h-0.5 w-8 bg-indigo-600 rounded-full mt-1" />
               </div>
               <button 
