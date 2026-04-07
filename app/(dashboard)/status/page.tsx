@@ -1,72 +1,110 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { 
-  CheckCircle2, 
-  AlertCircle, 
-  Clock, 
-  Activity, 
-  Database, 
-  Globe, 
-  MessageSquare, 
-  Server,
-  TrendingUp,
-  ArrowUpRight,
-  Zap,
-  ShieldCheck,
-  RefreshCcw
-} from 'lucide-react';
+import { motion, Reorder } from 'framer-motion';
+import { GripVertical, Plus, Trash2, CheckCircle2, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import StatusModal from '@/components/modals/StatusModal';
 
-const SYSTEM_STATUS = [
-  { name: 'Core API Server', status: 'operational', uptime: '99.98%', latency: '42ms', icon: Server },
-  { name: 'Real-time Database', status: 'operational', uptime: '100%', latency: '12ms', icon: Database },
-  { name: 'WhatsApp Bot Node', status: 'warning', uptime: '98.5%', latency: '156ms', icon: MessageSquare },
-  { name: 'Storage Cluster', status: 'operational', uptime: '99.99%', latency: '24ms', icon: Globe },
+interface Status {
+  id: string;
+  label: string;
+  color: string;
+}
+
+const INITIAL_STAGES: Status[] = [
+  { id: 'New', label: 'New Lead', color: 'bg-indigo-500' },
+  { id: 'Contacted', label: 'Contacted', color: 'bg-blue-500' },
+  { id: 'Interested', label: 'Interested', color: 'bg-cyan-500' },
+  { id: 'Site Visit', label: 'Site Visit', color: 'bg-emerald-500' },
+  { id: 'Negotiation', label: 'Negotiation', color: 'bg-amber-500' },
+  { id: 'Closed Won', label: 'Closed Won', color: 'bg-green-600' },
 ];
-
-const METRICS = [
-  { label: 'System Load', value: '24%', trend: '-4%', status: 'optimal' },
-  { label: 'Memory Usage', value: '3.2GB', trend: '+2%', status: 'optimal' },
-  { label: 'Active Webhooks', value: '1,240', trend: '+12%', status: 'high' },
-  { label: 'Error Rate', value: '0.02%', trend: '-0.01%', status: 'optimal' },
-];
-
-const StatusBadge = ({ status }: { status: string }) => (
-  <span className={cn(
-    "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5",
-    status === 'operational' ? "bg-emerald-50 text-emerald-600 border border-emerald-100" :
-    status === 'warning' ? "bg-amber-50 text-amber-600 border border-amber-100" :
-    "bg-rose-50 text-rose-600 border border-rose-100"
-  )}>
-    <div className={cn(
-      "w-1.5 h-1.5 rounded-full",
-      status === 'operational' ? "bg-emerald-500 animate-pulse" :
-      status === 'warning' ? "bg-amber-500 animate-bounce" : "bg-rose-500"
-    )} />
-    {status}
-  </span>
-);
 
 export default function StatusPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [stages, setStages] = useState<Status[]>(INITIAL_STAGES);
 
   return (
-    <div className="space-y-8  mx-auto">
-      
+    <div className="space-y-8 mx-auto pb-20">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 border-b border-slate-100 pb-6">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none mb-2">Status</h1>
+          <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">
+            Lead Kanban Stage Order
+          </p>
+        </div>
+        <button className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-200 active:scale-95">
+          <Plus size={16} strokeWidth={4} />
+          Add Status
+        </button>
+      </div>
 
-      <StatusModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={() => {
-          setIsModalOpen(false);
-          // logic here
-        }}
-      />
+      <div className="bg-white border border-slate-100 rounded-[2rem] shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-slate-100 flex items-center gap-3">
+          <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Pipeline Statuses</h3>
+          <div className="flex items-center gap-2 text-[9px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100/50">
+            <Info size={10} />
+            Drag to reorder
+          </div>
+        </div>
 
- 
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-50">
+                <th className="px-6 py-4">Status Name</th>
+                <th className="px-6 py-4">Order</th>
+                <th className="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <Reorder.Group
+              as="tbody"
+              axis="y"
+              values={stages}
+              onReorder={setStages}
+              className="divide-y divide-slate-50"
+            >
+              {stages.map((stage) => (
+                <Reorder.Item
+                   key={stage.id}
+                   value={stage}
+                   as="tr"
+                   className="hover:bg-slate-50/50 transition-colors group bg-white"
+                >
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-4">
+                      <div className="p-1 text-slate-300 group-hover:text-indigo-400 cursor-grab active:cursor-grabbing transition-colors">
+                        <GripVertical size={18} />
+                      </div>
+                      <div className={cn("w-3 h-3 rounded-full shadow-sm shrink-0", stage.color)} />
+                      <span className="text-sm font-black text-slate-900 uppercase tracking-tight">{stage.label}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-xs font-black text-slate-600 bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-lg">
+                      {stages.indexOf(stage) + 1}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all border border-transparent hover:border-rose-100">
+                      <Trash2 size={18} />
+                    </button>
+                  </td>
+                </Reorder.Item>
+              ))}
+            </Reorder.Group>
+          </table>
+        </div>
+
+        <div className="p-6 bg-slate-50/30 border-t border-slate-50 flex justify-end gap-3">
+          <button className="px-6 py-3 bg-white border border-slate-200 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all">
+            Reset Defaults
+          </button>
+          <button className="px-8 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 flex items-center gap-2">
+            <CheckCircle2 size={16} />
+            Save
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

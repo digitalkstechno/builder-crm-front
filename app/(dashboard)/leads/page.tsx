@@ -164,7 +164,7 @@ export default function LeadsPage() {
     <motion.div
       layoutId={lead.id}
       draggable
-      onDragStart={(e) => onDragStart(e, lead.id)}
+      onDragStart={(e: any) => onDragStart(e, lead.id)}
       className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all cursor-grab active:cursor-grabbing group"
     >
       <div className="flex justify-between items-start mb-2">
