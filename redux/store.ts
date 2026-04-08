@@ -4,6 +4,7 @@ import authReducer from './slices/authSlice';
 import staffReducer from './slices/staffSlice';
 import teamReducer from './slices/teamSlice';
 import leadStatusReducer from './slices/statusSlice';
+import whatsappReducer from './slices/whatsappSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     staff: staffReducer,
     team: teamReducer,
     leadStatus: leadStatusReducer,
+    whatsapp: whatsappReducer,
   },
 });
 
