@@ -19,7 +19,8 @@ import {
   List,
   MapPin,
   ChevronDown,
-  MessageSquare
+  MessageSquare,
+  Eye
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -268,6 +269,16 @@ export default function LeadsPage() {
                 >
                   <MessageSquare size={14} />
                   Add Followup
+                </button>
+                <button
+                  onClick={() => {
+                    handleOpenViewFollowupsModal(lead);
+                    setOpenDropdownId(null);
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  <Eye size={14} />
+                  View Followups
                 </button>
                 <button
                   onClick={() => {
@@ -542,13 +553,6 @@ export default function LeadsPage() {
         <div className="flex items-center gap-3">
           <button className="p-2.5 text-slate-500 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all shadow-sm">
             <Filter size={18} />
-          </button>
-          <button
-            onClick={() => setIsViewFollowupsModalOpen(true)}
-            className="flex items-center gap-2 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg"
-          >
-            <Calendar size={18} />
-            View Followups
           </button>
           <button
             onClick={() => setIsAddModalOpen(true)}

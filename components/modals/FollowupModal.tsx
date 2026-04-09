@@ -92,7 +92,7 @@ export default function FollowupModal({ isOpen, onClose, onSubmit, loading = fal
                 />
               </div>
 
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              {/* <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
                 <div className="flex items-start gap-2">
                   <MessageSquare className="text-amber-600 mt-0.5" size={16} />
                   <div className="text-sm text-amber-800">
@@ -100,7 +100,7 @@ export default function FollowupModal({ isOpen, onClose, onSubmit, loading = fal
                     <p>A reminder notification will be sent 1 day before the followup date.</p>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div className="flex items-center gap-3 pt-4">
                 <button
