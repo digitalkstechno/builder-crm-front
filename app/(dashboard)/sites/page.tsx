@@ -1,13 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Building2, Plus, Search, MapPin, MoreVertical, Edit3, Trash2, Eye, LayoutGrid, IndianRupee, Info, Smartphone, User, GitMerge } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import SiteModal from '@/components/modals/SiteModal';
 import CommonTable from '@/components/ui/CommonTable';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchSites, createSite, updateSite, deleteSite, getSiteById } from '@/redux/slices/siteSlice';
+import { fetchTeams, fetchStaffDropdown } from '@/redux/slices/teamSlice';
+import { RootState, AppDispatch } from '@/redux/store';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
-// Mock Data for UI demonstration
+// Mock Data for UI demonstration (will be replaced with API)
 const mockWhatsAppNumbers = [
   { id: 1, name: 'Sales Main (9876543210)' },
   { id: 2, name: 'Support Desk (9123456780)' },
@@ -25,59 +31,17 @@ const mockTeams = [
   { id: '2', name: 'Commercial Taskforce' }
 ];
 
-const mockSites = [
-  { 
-    id: 1, 
-    name: 'Skyline Hub', 
-    city: 'Mumbai',
-    area: 'Navi Mumbai, Sector 15', 
-    description: 'A modern commercial complex with state-of-the-art facilities.',
-    propertyTypes: 'Office, Retail',
-    priceRange: '₹1.2Cr - ₹5.5Cr',
-    whatsappNumber: 'Sales Main (9876543210)',
-    staff: 'Amit Sharma',
-    teamId: '1',
-    status: 'Active',
-    images: []
-  },
-  { 
-    id: 2, 
-    name: 'Green Valley Villas', 
-    city: 'Pune',
-    area: 'Pune West, Lonavala Road', 
-    description: 'Luxury villas surrounded by nature with premium amenities.',
-    propertyTypes: 'Villa, Plot',
-    priceRange: '₹2.5Cr - ₹8.0Cr',
-    whatsappNumber: 'Support Desk (9123456780)',
-    staff: 'Kavya Reddy',
-    teamId: '2',
-    status: 'Planning',
-    images: []
-  },
-  { 
-    id: 3, 
-    name: 'Oceanview Heights', 
-    city: 'Mumbai',
-    area: 'South Mumbai, Marine Drive', 
-    description: 'Premium sea-facing residential apartments.',
-    propertyTypes: '2BHK, 3BHK, 4BHK',
-    priceRange: '₹4.5Cr - ₹12.0Cr',
-    whatsappNumber: 'Marketing Hub (8877665544)',
-    staff: 'Nikhil Mehta',
-    teamId: '1',
-    status: 'Active',
-    images: []
-  },
-];
-
 export default function SitesPage() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { sites, pagination, loading } = useSelector((state: RootState) => state.site);
+  const { teams, staffDropdown } = useSelector((state: RootState) => state.team);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedSite, setSelectedSite] = useState<any>(null);
-  
+
   const [formData, setFormData] = useState<any>({
-    id: undefined,
     name: '',
     city: '',
     area: '',
@@ -88,31 +52,91 @@ export default function SitesPage() {
     staff: '',
     teamId: '',
     status: 'Planning',
-    images: []
+    images: [],
+    originalImages: [] // Track original images for comparison
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    dispatch(fetchSites({ page: 1, limit: 10, search: searchTerm }));
+    dispatch(fetchTeams({ page: 1, limit: 100 })); // Fetch all teams
+    dispatch(fetchStaffDropdown());
+  }, [dispatch, searchTerm]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitting Site:', formData);
-    setIsModalOpen(false);
-    setFormData({ 
-      id: undefined, 
-      name: '', 
-      city: '', 
-      area: '', 
-      description: '', 
-      propertyTypes: '', 
-      priceRange: '', 
-      whatsappNumber: '', 
-      staff: '', 
-      teamId: '', 
-      status: 'Planning',
-      images: []
-    });
+    try {
+      const formDataToSend = new FormData();
+
+      // Add text fields
+      Object.keys(formData).forEach(key => {
+        if (key !== 'images' && key !== 'originalImages' && key !== '_id') {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
+
+      // Handle images for update vs create
+      if (formData._id) {
+        // Update mode
+        const currentImages = formData.images || [];
+        const originalImages = formData.originalImages || [];
+
+        // Find which original images are still present (strings)
+        const keptImages = currentImages.filter((img: any) => typeof img === 'string');
+        // Find new images to upload (file objects)
+        const newImages = currentImages.filter((img: any) => img.file);
+
+        // Send kept images as JSON string
+        formDataToSend.append('keptImages', JSON.stringify(keptImages));
+
+        // Add new image files
+        newImages.forEach((img: any) => {
+          formDataToSend.append('images', img.file);
+        });
+      } else {
+        // Create mode - just add all images
+        if (formData.images && formData.images.length > 0) {
+          formData.images.forEach((img: any) => {
+            if (img.file) {
+              formDataToSend.append('images', img.file);
+            }
+          });
+        }
+      }
+
+      if (formData._id) {
+        // Update
+        await dispatch(updateSite({ id: formData._id, data: formDataToSend })).unwrap();
+      } else {
+        // Create
+        await dispatch(createSite(formDataToSend)).unwrap();
+      }
+
+      setIsModalOpen(false);
+      setFormData({
+        name: '',
+        city: '',
+        area: '',
+        description: '',
+        propertyTypes: '',
+        priceRange: '',
+        whatsappNumber: '',
+        staff: '',
+        teamId: '',
+        status: 'Planning',
+        images: [],
+        originalImages: []
+      });
+    } catch (error) {
+      console.error('Error submitting site:', error);
+    }
   };
 
   const handleEdit = (site: any) => {
-    setFormData(site);
+    setFormData({
+      ...site,
+      originalImages: [...(site.images || [])], // Store original images for comparison
+      images: [...(site.images || [])] // Initialize images with existing ones
+    });
     setIsModalOpen(true);
   };
 
@@ -121,11 +145,55 @@ export default function SitesPage() {
     setIsViewModalOpen(true);
   };
 
-  const filteredSites = mockSites.filter(s => 
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.area.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleDelete = async (site: any) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: `Do you want to delete "${site.name}"? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        popup: 'rounded-2xl',
+        title: 'text-lg font-bold text-slate-900',
+        htmlContainer: 'text-sm text-slate-600',
+        confirmButton: 'px-4 py-2 rounded-lg text-sm font-semibold',
+        cancelButton: 'px-4 py-2 rounded-lg text-sm font-semibold'
+      }
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await dispatch(deleteSite(site._id)).unwrap();
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'Site has been deleted successfully.',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false,
+          customClass: {
+            popup: 'rounded-2xl',
+            title: 'text-lg font-bold text-emerald-600'
+          }
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to delete site. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444',
+          customClass: {
+            popup: 'rounded-2xl',
+            title: 'text-lg font-bold text-red-600'
+          }
+        });
+      }
+    }
+  };
+
+  // Sites are fetched from API with search
 
   const columns = [
     {
@@ -187,14 +255,14 @@ export default function SitesPage() {
       header: 'Assigned Team',
       key: 'teamId',
       render: (site: any) => {
-        const team = mockTeams.find(t => t.id === site.teamId);
+        const team = teams.find(t => t._id === site.teamId);
         return (
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
-               <GitMerge size={10} />
+                <GitMerge size={10} />
             </div>
-            <span className="text-slate-700 text-xs font-medium">{team?.name || 'Unassigned'}</span>
-         </div>
+            <span className="text-slate-700 text-xs font-medium">{team?.teamName || 'Unassigned'}</span>
+          </div>
         );
       }
     },
@@ -231,9 +299,12 @@ export default function SitesPage() {
           >
             <Edit3 size={14} />
           </button>
-          <button className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-50 rounded-lg transition-all">
-            <Trash2 size={14} />
-          </button>
+           <button
+              onClick={() => handleDelete(site)}
+              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-50 rounded-lg transition-all"
+            >
+              <Trash2 size={14} />
+            </button>
         </div>
       )
     }
@@ -256,18 +327,19 @@ export default function SitesPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => {
-              setFormData({ 
-                name: '', 
-                city: '', 
-                area: '', 
-                description: '', 
-                propertyTypes: '', 
-                priceRange: '', 
-                whatsappNumber: '', 
-                staff: '', 
-                teamId: '', 
+              setFormData({
+                name: '',
+                city: '',
+                area: '',
+                description: '',
+                propertyTypes: '',
+                priceRange: '',
+                whatsappNumber: '',
+                staff: '',
+                teamId: '',
                 status: 'Planning',
-                images: [] 
+                images: [],
+                originalImages: []
               });
               setIsModalOpen(true);
             }}
@@ -279,33 +351,28 @@ export default function SitesPage() {
         </div>
       </div>
 
-      <CommonTable 
+      <CommonTable
         title="Project Portfolio"
         columns={columns}
-        data={filteredSites}
-        loading={false}
+        data={sites}
+        loading={loading}
         searchValue={searchTerm}
         onSearchChange={setSearchTerm}
         searchPlaceholder="Search projects..."
-        pagination={{
-          totalItems: filteredSites.length,
-          totalPages: 1,
-          currentPage: 1,
-          limit: 10
-        }}
-        onPageChange={() => {}}
+        pagination={pagination}
+        onPageChange={(page) => dispatch(fetchSites({ page, limit: pagination.limit, search: searchTerm }))}
       />
 
       {/* New/Edit Site Modal */}
-      <SiteModal 
+      <SiteModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         formData={formData}
         setFormData={setFormData}
         onSubmit={handleSubmit}
         mockWhatsAppNumbers={mockWhatsAppNumbers}
-        mockStaff={mockStaff}
-        mockTeams={mockTeams}
+        mockStaff={staffDropdown}
+        mockTeams={teams}
       />
 
       {/* View Site Details Modal */}

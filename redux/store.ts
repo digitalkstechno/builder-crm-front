@@ -5,6 +5,7 @@ import staffReducer from './slices/staffSlice';
 import teamReducer from './slices/teamSlice';
 import leadStatusReducer from './slices/statusSlice';
 import whatsappReducer from './slices/whatsappSlice';
+import siteReducer from './slices/siteSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     team: teamReducer,
     leadStatus: leadStatusReducer,
     whatsapp: whatsappReducer,
+    site: siteReducer,
   },
 });
 
