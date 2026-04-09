@@ -74,9 +74,9 @@ export default function WhatsAppModal({
       maxWidth="max-w-xl"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 font-black tracking-tight">
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-1.5">
-            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Instance Display Name</label>
+            <label className="text-xs font-semibold text-slate-500 ml-1">Instance Display Name</label>
             <div className="relative group">
               <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
               <input 
@@ -86,13 +86,13 @@ export default function WhatsAppModal({
                 placeholder="e.g. Sales Primary Hub" 
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-400 transition-all font-bold placeholder:text-slate-300" 
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-400 transition-all placeholder:text-slate-300" 
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">WhatsApp Business Number</label>
+            <label className="text-xs font-semibold text-slate-500 ml-1">WhatsApp Business Number</label>
             <div className="relative group">
               <Phone size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
               <input 
@@ -103,7 +103,7 @@ export default function WhatsAppModal({
                 maxLength={10}
                 value={formData.number}
                 onChange={handleChange}
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-400 transition-all font-bold placeholder:text-slate-300 tracking-[0.2em]" 
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-400 transition-all placeholder:text-slate-300" 
               />
             </div>
           </div>
@@ -113,14 +113,14 @@ export default function WhatsAppModal({
           <button 
             type="button"
             onClick={onClose}
-            className="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl font-black transition-all active:scale-95 text-[10px] tracking-widest uppercase disabled:opacity-50"
+            className="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl font-semibold text-sm transition-all active:scale-95 disabled:opacity-50"
             disabled={loading}
           >
             Cancel
           </button>
           <button 
             type="submit"
-            className="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black transition-all shadow-lg shadow-indigo-100 active:scale-95 flex items-center justify-center gap-2 text-[10px] tracking-widest uppercase disabled:bg-indigo-400"
+            className="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-indigo-100 active:scale-95 flex items-center justify-center gap-2 disabled:bg-indigo-400"
             disabled={loading}
           >
             {loading ? (

@@ -239,13 +239,14 @@ export default function StaffPage() {
     {
       header: 'Member Information',
       key: 'name',
-      render: (item: any) => (        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 font-semibold text-[10px] border border-slate-200">
+      render: (item: any) => (
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 font-semibold text-xs border border-slate-200">
             {item.userId.fullName.split(' ').map((n: string) => n[0]).join('')}
           </div>
           <div>
-            <div className="text-xs font-semibold text-slate-900 tracking-tight">{item.userId.fullName}</div>
-            <div className="text-[10px] font-medium text-slate-400">{item.userId.email}</div>
+            <div className="text-sm font-semibold text-slate-900">{item.userId.fullName}</div>
+            <div className="text-xs text-slate-400">{item.userId.email}</div>
           </div>
         </div>
       )
@@ -254,8 +255,8 @@ export default function StaffPage() {
       header: 'Staff Role',
       key: 'role',
       render: (item: any) => (
-        <div className="text-[10px] font-semibold text-indigo-600 flex items-center gap-1.5 uppercase tracking-wider">
-          <Shield size={10} /> {item.staffRole}
+        <div className="text-sm text-indigo-600 flex items-center gap-1.5">
+          <Shield size={13} /> {item.staffRole}
         </div>
       )
     },
@@ -263,7 +264,7 @@ export default function StaffPage() {
       header: 'Contact',
       key: 'phone',
       render: (item: any) => (
-        <div className="text-xs font-medium text-slate-600">
+        <div className="text-sm text-slate-600">
           {item.userId.phone}
         </div>
       )
@@ -279,7 +280,7 @@ export default function StaffPage() {
               item.userId.status === 'active' ? "bg-emerald-500" : "bg-slate-300"
             )} />
             <span className={cn(
-              "text-[10px] font-semibold",
+              "text-sm",
               item.userId.status === 'active' ? "text-emerald-600" : "text-slate-400"
             )}>
               {item.userId.status === 'active' ? 'Active' : 'Inactive'}
@@ -336,8 +337,8 @@ export default function StaffPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 border-b border-slate-100 pb-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-none mb-1">Staff Management</h1>
-          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest flex items-center gap-2">
-            <Users size={10} className="text-indigo-500" />
+          <p className="text-xs text-slate-400 flex items-center gap-2">
+            <Users size={12} className="text-indigo-500" />
             Manage your workforce
           </p>
         </div>
@@ -371,7 +372,7 @@ export default function StaffPage() {
               setEditingStaff(null);
               setIsAddModalOpen(true);
             }}
-            className="flex items-center gap-2 bg-indigo-600 px-4 py-2 rounded-lg text-xs font-semibold text-white transition-all shadow-md shadow-indigo-100 uppercase tracking-wider"
+            className="flex items-center gap-2 bg-indigo-600 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all shadow-md shadow-indigo-100"
           >
             <UserPlus size={14} />
             Add Staff

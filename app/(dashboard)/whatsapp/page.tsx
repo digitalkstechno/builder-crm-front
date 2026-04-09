@@ -176,7 +176,7 @@ export default function WhatsAppPage() {
           <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 border border-indigo-100/50">
              <MessageSquare size={14} />
           </div>
-          <span className="font-semibold text-slate-900 text-xs tracking-tight block normal-case">{num.name}</span>
+          <span className="font-semibold text-slate-900 text-sm block">{num.name}</span>
         </div>
       )
     },
@@ -184,7 +184,7 @@ export default function WhatsAppPage() {
       header: 'Phone Number',
       key: 'number',
       render: (num: any) => (
-        <div className="text-xs font-medium text-slate-600 tracking-wider">
+        <div className="text-sm text-slate-600">
           +91 {num.number}
         </div>
       )
@@ -200,7 +200,7 @@ export default function WhatsAppPage() {
               num.isActive ? "bg-emerald-500 animate-pulse" : "bg-slate-300"
             )} />
             <span className={cn(
-              "text-[10px] font-semibold",
+              "text-sm",
               num.isActive ? "text-emerald-600" : "text-slate-400"
             )}>
               {num.isActive ? 'Active' : 'Inactive'}
@@ -250,8 +250,8 @@ export default function WhatsAppPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 border-b border-slate-100 pb-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-none mb-1">WhatsApp Hubs</h1>
-          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest flex items-center gap-2">
-            <MessageSquare size={10} className="text-indigo-500" />
+          <p className="text-xs text-slate-400 flex items-center gap-2">
+            <MessageSquare size={12} className="text-indigo-500" />
             Business Communication Management
           </p>
         </div>
@@ -282,7 +282,7 @@ export default function WhatsAppPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => handleOpenModal()}
-            className="flex items-center gap-2 bg-indigo-600 px-4 py-2 rounded-lg text-xs font-semibold text-white transition-all shadow-md shadow-indigo-100 uppercase tracking-wider"
+            className="flex items-center gap-2 bg-indigo-600 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all shadow-md shadow-indigo-100"
           >
             <Plus size={14} />
             New Hub

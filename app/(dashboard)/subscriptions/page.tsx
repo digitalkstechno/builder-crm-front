@@ -121,8 +121,8 @@ export default function SubscriptionsPage() {
       key: 'planName',
       render: (sub: any) => (
         <div>
-          <p className="text-xs font-semibold text-slate-900">{sub.planName}</p>
-          <p className="text-[10px] text-slate-400 font-medium">{sub.razorpayPaymentId}</p>
+          <p className="text-sm font-semibold text-slate-900">{sub.planName}</p>
+          <p className="text-xs text-slate-400">{sub.razorpayPaymentId}</p>
         </div>
       )
     },
@@ -130,7 +130,7 @@ export default function SubscriptionsPage() {
       header: 'Period',
       key: 'startDate',
       render: (sub: any) => (
-        <span className="text-[11px] font-medium text-slate-600">
+        <span className="text-sm text-slate-600">
            {new Date(sub.startDate).toLocaleDateString()} - {new Date(sub.endDate).toLocaleDateString()}
         </span>
       )
@@ -139,7 +139,7 @@ export default function SubscriptionsPage() {
       header: 'Amount',
       key: 'amountPaid',
       render: (sub: any) => (
-        <span className="text-xs font-semibold text-slate-900">
+        <span className="text-sm font-semibold text-slate-900">
            ₹{sub.amountPaid.toLocaleString()}
         </span>
       )
@@ -150,10 +150,10 @@ export default function SubscriptionsPage() {
       className: 'text-right',
       render: (sub: any) => (
         <span className={cn(
-          "text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md border",
+          "text-xs font-medium px-2 py-0.5 rounded-md border",
           sub.status === 'expired' ? "bg-slate-50 text-slate-400 border-slate-100" : "bg-rose-50 text-rose-600 border-rose-100"
         )}>
-          {sub.status}
+          {sub.status === 'expired' ? 'Expired' : 'Cancelled'}
         </span>
       )
     }
@@ -171,8 +171,8 @@ export default function SubscriptionsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 border-b border-slate-100 pb-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-none mb-1">Billing & Subscription</h1>
-          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest flex items-center gap-2">
-            <CreditCard size={10} className="text-indigo-500" />
+          <p className="text-xs text-slate-400 flex items-center gap-2">
+            <CreditCard size={12} className="text-indigo-500" />
             Manage your plan & billing
           </p>
         </div>

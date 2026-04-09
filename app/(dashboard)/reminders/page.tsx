@@ -166,8 +166,8 @@ export default function RemindersPage() {
              <MessageCircle size={12} />
           </div>
           <div>
-             <span className="font-semibold text-slate-900 text-xs tracking-tight block">{reminder.lead}</span>
-             <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Follow-up Reminder</span>
+             <span className="font-semibold text-slate-900 text-sm block">{reminder.lead}</span>
+             <span className="text-xs text-slate-400">Follow-up Reminder</span>
           </div>
         </div>
       )
@@ -176,7 +176,7 @@ export default function RemindersPage() {
       header: 'Followup Date',
       key: 'followupDate',
       render: (reminder: any) => (
-        <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider bg-slate-50 border border-slate-100 px-2 py-0.5 rounded">
+        <span className="text-sm text-slate-500 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded">
            {reminder.followupDate}
         </span>
       )
@@ -185,7 +185,7 @@ export default function RemindersPage() {
       header: 'Schedule',
       key: 'reminderTime',
       render: (reminder: any) => (
-        <div className="flex items-center gap-1.5 text-slate-600 font-medium text-xs bg-slate-50 px-2 py-0.5 w-fit rounded border border-slate-100">
+        <div className="flex items-center gap-1.5 text-slate-600 text-sm bg-slate-50 px-2 py-0.5 w-fit rounded border border-slate-100">
            <Clock size={12} className="text-slate-400" />
            {reminder.reminderTime}
         </div>
@@ -205,7 +205,7 @@ export default function RemindersPage() {
       key: 'status',
       render: (reminder: any) => (
         <span className={cn(
-          "text-[9px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider",
+          "text-xs font-medium px-2 py-0.5 rounded-full",
           reminder.isSent ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
         )}>
           {reminder.isSent ? 'Completed' : 'Pending'}
@@ -220,8 +220,8 @@ export default function RemindersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 border-b border-slate-100 pb-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-none mb-1">Follow-ups</h1>
-          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest flex items-center gap-2">
-            <Calendar size={10} className="text-indigo-500" />
+          <p className="text-xs text-slate-400 flex items-center gap-2">
+            <Calendar size={12} className="text-indigo-500" />
             Daily Task Management
           </p>
         </div>
@@ -238,7 +238,7 @@ export default function RemindersPage() {
             key={tab.value}
             onClick={() => setActiveTab(tab.value)}
             className={cn(
-              "px-4 py-1.5 rounded-md text-[10px] uppercase tracking-wider font-semibold transition-all flex items-center gap-2",
+              "px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center gap-2",
               activeTab === tab.value ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
             )}
           >

@@ -83,9 +83,9 @@ export default function StaffModal({
       maxWidth="max-w-2xl"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 font-black text-slate-900">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
           <div className="space-y-1.5">
-            <label className="text-[9px] font-black text-slate-400 ml-1">Full Name</label>
+            <label className="text-xs font-semibold text-slate-500 ml-1">Full Name</label>
             <div className="relative group">
               <Users size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
               <input 
@@ -100,7 +100,7 @@ export default function StaffModal({
             </div>
           </div>
           <div className="space-y-1.5">
-            <label className="text-[9px] font-black text-slate-400 ml-1">Work Email</label>
+            <label className="text-xs font-semibold text-slate-500 ml-1">Work Email</label>
             <div className="relative group">
               <Mail size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
               <input 
@@ -116,14 +116,14 @@ export default function StaffModal({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[9px] font-black text-slate-400 ml-1">Select Role</label>
+            <label className="text-xs font-semibold text-slate-500 ml-1">Select Role</label>
             <div className="relative group">
               <Shield size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-indigo-500 transition-colors" />
               <select 
                 name="staffRole"
                 value={formData.staffRole}
                 onChange={handleChange}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold appearance-none outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-400 transition-all cursor-pointer"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm appearance-none outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-400 transition-all cursor-pointer"
               >
                 <option value="Sales Manager">Sales Manager</option>
                 <option value="Sales Executive">Sales Executive</option>
@@ -133,7 +133,7 @@ export default function StaffModal({
             </div>
           </div>
           <div className="space-y-1.5">
-            <label className="text-[9px] font-black text-slate-400 ml-1">Phone Number</label>
+            <label className="text-xs font-semibold text-slate-500 ml-1">Phone Number</label>
             <div className="relative group">
               <Phone size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
               <input 
@@ -151,7 +151,7 @@ export default function StaffModal({
 
           {!initialData && (
             <div className="space-y-1.5 sm:col-span-2">
-              <label className="text-[9px] font-black text-slate-400 ml-1">Password</label>
+              <label className="text-xs font-semibold text-slate-500 ml-1">Password</label>
               <div className="relative group">
                 <Lock size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                 <input 
@@ -180,14 +180,14 @@ export default function StaffModal({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl font-black transition-all active:scale-95 text-[10px] tracking-widest disabled:opacity-50"
+            className="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl font-semibold text-sm transition-all active:scale-95 disabled:opacity-50"
           >
             Cancel
           </button>
           <button 
             type="submit"
             disabled={loading}
-            className="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black transition-all shadow-lg shadow-indigo-100 active:scale-95 flex items-center justify-center gap-2 text-[10px] tracking-widest disabled:bg-indigo-400"
+            className="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-indigo-100 active:scale-95 flex items-center justify-center gap-2 disabled:bg-indigo-400"
           >
             {loading ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

@@ -196,8 +196,8 @@ export default function SitesPage() {
              <Building2 size={14} />
           </div>
           <div>
-            <span className="font-semibold text-slate-900 text-xs tracking-tight block normal-case">{site.name}</span>
-            <span className="text-[10px] text-slate-400 font-medium truncate max-w-[200px] block normal-case">{site.description}</span>
+            <span className="font-semibold text-slate-900 text-sm block">{site.name}</span>
+            <span className="text-xs text-slate-400 truncate max-w-[200px] block">{site.description}</span>
           </div>
         </div>
       )
@@ -208,10 +208,10 @@ export default function SitesPage() {
       render: (site: any) => (
         <div className="flex flex-col gap-0.5 text-slate-600">
            <div className="flex items-center gap-1.5">
-              <MapPin size={10} className="text-indigo-500" />
-              <span className="text-[11px] font-semibold uppercase tracking-tight">{site.city}</span>
+              <MapPin size={12} className="text-indigo-500" />
+              <span className="text-sm font-medium text-slate-700">{site.city}</span>
            </div>
-           <span className="text-[10px] font-medium text-slate-400 truncate max-w-[150px]">{site.area}</span>
+           <span className="text-xs text-slate-400 truncate max-w-[150px]">{site.area}</span>
         </div>
       )
     },
@@ -219,14 +219,14 @@ export default function SitesPage() {
       header: 'Property Types',
       key: 'propertyTypes',
       render: (site: any) => (
-        <span className="text-xs font-medium text-slate-600">{site.propertyTypes}</span>
+        <span className="text-sm text-slate-600">{site.propertyTypes}</span>
       )
     },
     {
       header: 'Price Range',
       key: 'priceRange',
       render: (site: any) => (
-        <span className="text-xs font-semibold text-slate-900">{site.priceRange}</span>
+        <span className="text-sm font-semibold text-slate-900">{site.priceRange}</span>
       )
     },
     {
@@ -235,11 +235,11 @@ export default function SitesPage() {
       render: (site: any) => (
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1.5 text-indigo-600">
-             <Smartphone size={10} />
-             <span className="text-[10px] font-semibold">{site.whatsappNumber?.split(' (')[0] || 'N/A'}</span>
+             <Smartphone size={12} />
+             <span className="text-sm">{site.whatsappNumber?.split(' (')[0] || 'N/A'}</span>
           </div>
           <span className={cn(
-            "text-[8px] font-black uppercase px-2 py-0.5 rounded-full w-fit",
+            "text-xs font-medium px-2 py-0.5 rounded-full w-fit",
             site.whatsappStatus === 'connected' ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
           )}>
             {site.whatsappStatus || 'disconnected'}
@@ -252,10 +252,10 @@ export default function SitesPage() {
       key: 'chatbotStatus',
       render: (site: any) => (
         <span className={cn(
-          "text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border",
+          "text-xs font-medium px-2 py-0.5 rounded-lg border",
           site.chatbotStatus === 'active' ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-slate-400 border-slate-100"
         )}>
-          {site.chatbotStatus || 'inactive'}
+          {site.chatbotStatus === 'active' ? 'Active' : 'Inactive'}
         </span>
       )
     },
@@ -269,7 +269,7 @@ export default function SitesPage() {
             <div className="w-6 h-6 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
                 <GitMerge size={10} />
             </div>
-            <span className="text-slate-700 text-xs font-medium">{team?.teamName || 'Unassigned'}</span>
+            <span className="text-slate-700 text-sm">{team?.teamName || 'Unassigned'}</span>
           </div>
         );
       }
@@ -279,12 +279,12 @@ export default function SitesPage() {
       key: 'status',
       render: (site: any) => (
         <span className={cn(
-          "inline-flex items-center gap-1.5 text-[9px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider border",
-          site.status === 'Active' 
-            ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
+          "inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-md border",
+          site.status === 'Active'
+            ? "bg-emerald-50 text-emerald-600 border-emerald-100"
             : "bg-amber-50 text-amber-600 border-amber-100"
         )}>
-          <span className={cn("w-1 h-1 rounded-full animate-pulse", site.status === 'Active' ? "bg-emerald-500" : "bg-amber-500")} />
+          <span className={cn("w-1.5 h-1.5 rounded-full animate-pulse", site.status === 'Active' ? "bg-emerald-500" : "bg-amber-500")} />
           {site.status}
         </span>
       )
@@ -326,8 +326,8 @@ export default function SitesPage() {
         <div className="flex items-center gap-4">
           <div>
             <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-none mb-1">Project Portfolio</h1>
-            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest flex items-center gap-2">
-              <LayoutGrid size={10} className="text-indigo-500" />
+            <p className="text-xs text-slate-400 flex items-center gap-2">
+              <LayoutGrid size={12} className="text-indigo-500" />
               Site & Inventory Management
             </p>
           </div>
@@ -384,7 +384,7 @@ export default function SitesPage() {
               setIsModalOpen(true);
             }}
             className={cn(
-               "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all shadow-md uppercase tracking-wider",
+               "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-md",
                mounted && isLimitReached 
                 ? "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none" 
                 : "bg-indigo-600 text-white shadow-indigo-100 hover:bg-indigo-700"

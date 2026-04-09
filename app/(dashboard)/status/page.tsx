@@ -91,9 +91,9 @@ export default function StatusPage() {
     <div className="mx-auto space-y-4 pb-20 px-6 pt-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 border-b border-slate-100 pb-4">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-none mb-1 uppercase">Status</h1>
-          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest flex items-center gap-2">
-            <CheckCircle2 size={10} className="text-indigo-500" />
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-none mb-1">Status</h1>
+          <p className="text-xs text-slate-400 flex items-center gap-2">
+            <CheckCircle2 size={12} className="text-indigo-500" />
             Lead Kanban Stage Order
           </p>
         </div>
@@ -102,7 +102,7 @@ export default function StatusPage() {
             setFormData({ _id: '', name: '', color: '#6366f1' });
             setIsModalOpen(true);
           }}
-          className="flex items-center gap-2 bg-indigo-600 px-4 py-2 rounded-lg text-xs font-semibold text-white transition-all shadow-md shadow-indigo-100 uppercase tracking-wider"
+          className="flex items-center gap-2 bg-indigo-600 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all shadow-md shadow-indigo-100"
         >
           <Plus size={14} />
           New Status
@@ -111,9 +111,9 @@ export default function StatusPage() {
 
       <div className="bg-white border border-slate-100 rounded-[2rem] shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex items-center gap-3">
-          <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Pipeline Statuses</h3>
-          <div className="flex items-center gap-2 text-[9px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100/50">
-            <Info size={10} />
+          <h3 className="text-sm font-semibold text-slate-900">Pipeline Statuses</h3>
+          <div className="flex items-center gap-2 text-xs text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100/50">
+            <Info size={11} />
             Drag to reorder
           </div>
         </div>
@@ -121,7 +121,7 @@ export default function StatusPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-50">
+              <tr className="bg-slate-50/50 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                 <th className="px-6 py-4">Status Name</th>
                 <th className="px-6 py-4">Order</th>
                 <th className="px-6 py-4 text-right">Actions</th>
@@ -147,11 +147,11 @@ export default function StatusPage() {
                         <GripVertical size={18} />
                       </div>
                       <div className="w-3 h-3 rounded-full shadow-sm shrink-0" style={{ backgroundColor: status.color }} />
-                      <span className="text-sm font-black text-slate-900 uppercase tracking-tight">{status.name}</span>
+                      <span className="text-sm font-semibold text-slate-900">{status.name}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-xs font-black text-slate-600 bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-lg uppercase">
+                    <span className="text-sm text-slate-600 bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-lg">
                       {localStatuses.indexOf(status) + 1}
                     </span>
                   </td>
@@ -182,7 +182,7 @@ export default function StatusPage() {
         <div className="p-6 bg-slate-50/30 border-t border-slate-50 flex justify-end gap-3">
           <button 
             onClick={handleSaveOrder}
-            className="px-8 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 flex items-center gap-2 active:scale-95"
+            className="px-8 py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 flex items-center gap-2 active:scale-95"
           >
             <CheckCircle2 size={16} />
             Save Changes

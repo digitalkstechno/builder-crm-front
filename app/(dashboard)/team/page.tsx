@@ -109,7 +109,7 @@ export default function TeamsPage() {
              <GitMerge size={14} />
           </div>
           <div>
-            <div className="text-xs font-semibold text-slate-900 tracking-tight">{team.teamName}</div>
+            <div className="text-sm font-semibold text-slate-900">{team.teamName}</div>
           </div>
         </div>
       )
@@ -126,7 +126,7 @@ export default function TeamsPage() {
             <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-semibold text-[8px]">
               {initials}
             </div>
-            <span className="text-xs font-medium text-slate-700">{name}</span>
+            <span className="text-sm font-medium text-slate-700">{name}</span>
           </div>
         );
       }
@@ -153,7 +153,7 @@ export default function TeamsPage() {
               </div>
             )}
           </div>
-          <span className="ml-3 text-[10px] font-medium text-slate-400 uppercase tracking-widest">
+          <span className="ml-3 text-xs text-slate-400">
             {team.members?.length || 0} Members
           </span>
         </div>
@@ -164,10 +164,10 @@ export default function TeamsPage() {
       key: 'status',
       render: (team: any) => (
         <span className={cn(
-          "text-[9px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider border",
+          "text-xs font-medium px-2 py-0.5 rounded-md border",
           team.status === 'active' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-slate-50 text-slate-600 border-slate-100"
         )}>
-          {team.status}
+          {team.status === 'active' ? 'Active' : 'Inactive'}
         </span>
       )
     },
@@ -200,8 +200,8 @@ export default function TeamsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 border-b border-slate-100 pb-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-none mb-1">Team Management</h1>
-          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest flex items-center gap-2">
-            <Users size={10} className="text-indigo-500" />
+          <p className="text-xs text-slate-400 flex items-center gap-2">
+            <Users size={12} className="text-indigo-500" />
             Organize staff into teams
           </p>
         </div>
@@ -235,7 +235,7 @@ export default function TeamsPage() {
               setFormData({ _id: '', teamName: '', leaderId: '', members: [] });
               setIsModalOpen(true);
             }}
-            className="flex items-center gap-2 bg-indigo-600 px-4 py-2 rounded-lg text-xs font-semibold text-white transition-all shadow-md shadow-indigo-100 uppercase tracking-wider"
+            className="flex items-center gap-2 bg-indigo-600 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all shadow-md shadow-indigo-100"
           >
             <Plus size={14} />
             New Team

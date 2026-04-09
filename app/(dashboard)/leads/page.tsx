@@ -126,9 +126,9 @@ export default function LeadsPage() {
             {lead.name.split(' ').map(n => n[0]).join('')}
           </div>
           <div>
-            <div className="font-semibold text-slate-900 text-xs">{lead.name}</div>
-            <div className="flex items-center gap-1 text-[10px] text-slate-400">
-              <Calendar size={10} />
+            <div className="font-semibold text-slate-900 text-sm">{lead.name}</div>
+            <div className="flex items-center gap-1 text-xs text-slate-400 mt-0.5">
+              <Calendar size={11} />
               {lead.createdAt}
             </div>
           </div>
@@ -138,8 +138,9 @@ export default function LeadsPage() {
     {
       header: 'Phone',
       key: 'phone',
-      render: (lead: Lead) => (        <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
-          <Phone size={12} className="text-slate-400" />
+      render: (lead: Lead) => (
+        <div className="flex items-center gap-1.5 text-sm text-slate-600">
+          <Phone size={13} className="text-slate-400" />
           {lead.phone}
         </div>
       )
@@ -148,8 +149,8 @@ export default function LeadsPage() {
       header: 'Site / Project',
       key: 'site',
       render: (lead: Lead) => (
-        <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
-          <Building size={12} className="text-slate-400" />
+        <div className="flex items-center gap-1.5 text-sm text-slate-600">
+          <Building size={13} className="text-slate-400" />
           {lead.site}
         </div>
       )
@@ -159,12 +160,12 @@ export default function LeadsPage() {
       key: 'source',
       render: (lead: Lead) => (
         <span className={cn(
-          "text-[9px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1 w-fit",
-          lead.source === 'WhatsApp' ? "bg-emerald-50 text-emerald-600 border border-emerald-100" :
-          lead.source === 'Facebook' ? "bg-blue-50 text-blue-600 border border-blue-100" :
-          "bg-purple-50 text-purple-600 border border-purple-100"
+          "text-xs font-medium px-2 py-0.5 rounded-md flex items-center gap-1 w-fit border",
+          lead.source === 'WhatsApp' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+          lead.source === 'Facebook' ? "bg-blue-50 text-blue-600 border-blue-100" :
+          "bg-purple-50 text-purple-600 border-purple-100"
         )}>
-          <Target size={10} />
+          <Target size={11} />
           {lead.source}
         </span>
       )
@@ -173,8 +174,8 @@ export default function LeadsPage() {
       header: 'Budget',
       key: 'budget',
       render: (lead: Lead) => (
-        <div className="flex items-center gap-0.5 text-xs font-semibold text-slate-800">
-          <IndianRupee size={12} className="text-slate-400" />
+        <div className="flex items-center gap-0.5 text-sm font-semibold text-slate-800">
+          <IndianRupee size={13} className="text-slate-400" />
           {lead.budget}
         </div>
       )
@@ -186,7 +187,7 @@ export default function LeadsPage() {
         const status = leadStatuses.find((s: any) => s._id === lead.stageId);
         return (
           <span
-            className="text-[9px] font-semibold px-2 py-0.5 rounded-full border"
+            className="text-xs font-medium px-2 py-0.5 rounded-full border"
             style={{
               backgroundColor: status?.color ? `${status.color}20` : '#f3f4f6',
               color: status?.color || '#6b7280',
@@ -202,40 +203,18 @@ export default function LeadsPage() {
       header: 'Assigned To',
       key: 'agent',
       render: (lead: any) => (
-        <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium group cursor-pointer">
-          <User size={12} className="text-slate-400" />
-          <div className="relative w-full">
-            <span className="group-hover:hidden block">{lead.agent || 'Unassigned'}</span>
-            <select
-              value={lead.agentId || ''}
-              onChange={(e) => handleAgentChange(lead._id, e.target.value)}
-              className="hidden group-hover:block bg-white border border-slate-200 rounded px-1 text-xs font-medium cursor-pointer w-full"
-            >
-              <option value="">Unassigned</option>
-              {/* If lead has a site, show its team members */}
-              {lead.siteId && (
-                <>
-                  {(() => {
-                    // Find the site and get its team members
-                    const site = sitesDropdown.find((s: any) => s._id === lead.siteId);
-                    if (site?.teamId) {
-                      // This is simplified - in a real app you'd fetch team members for this specific lead
-                      return staffDropdown.map(staff => (
-                        <option key={staff._id} value={staff._id}>{staff.name}</option>
-                      ));
-                    }
-                    return null;
-                  })()}
-                </>
-              )}
-              {/* Fallback to all staff if no site-specific team */}
-              {(!lead.siteId || !sitesDropdown.find((s: any) => s._id === lead.siteId)?.teamId) &&
-                staffDropdown.map(staff => (
-                  <option key={staff._id} value={staff._id}>{staff.name}</option>
-                ))
-              }
-            </select>
-          </div>
+        <div className="flex items-center gap-1.5">
+          <User size={13} className="text-slate-400 shrink-0" />
+          <select
+            value={lead.agentId || ''}
+            onChange={(e) => handleAgentChange(lead._id, e.target.value)}
+            className="bg-transparent text-sm text-slate-600 font-medium cursor-pointer border-0 outline-none focus:ring-0 max-w-[120px] truncate"
+          >
+            <option value="">Unassigned</option>
+            {staffDropdown.map(staff => (
+              <option key={staff._id} value={staff._id}>{staff.name}</option>
+            ))}
+          </select>
         </div>
       )
     },
@@ -259,33 +238,35 @@ export default function LeadsPage() {
               <MoreVertical size={14} />
             </button>
             {openDropdownId === lead._id && (
-              <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-slate-200 rounded-lg shadow-lg z-10">
+              <div className="fixed z-50 w-44 bg-white border border-slate-200 rounded-xl shadow-xl"
+                style={{
+                  top: (() => {
+                    const el = document.querySelector(`[data-lead-id="${lead._id}"]`);
+                    if (!el) return 'auto';
+                    const rect = el.getBoundingClientRect();
+                    const spaceBelow = window.innerHeight - rect.bottom;
+                    return spaceBelow < 140 ? `${rect.top - 140}px` : `${rect.bottom + 4}px`;
+                  })(),
+                  right: '24px'
+                }}
+              >
                 <button
-                  onClick={() => {
-                    handleOpenFollowupModal(lead);
-                    setOpenDropdownId(null);
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                  onClick={() => { handleOpenFollowupModal(lead); setOpenDropdownId(null); }}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors rounded-t-xl"
                 >
                   <MessageSquare size={14} />
                   Add Followup
                 </button>
                 <button
-                  onClick={() => {
-                    handleOpenViewFollowupsModal(lead);
-                    setOpenDropdownId(null);
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                  onClick={() => { handleOpenViewFollowupsModal(lead); setOpenDropdownId(null); }}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   <Eye size={14} />
                   View Followups
                 </button>
                 <button
-                  onClick={() => {
-                    handleDelete(lead);
-                    setOpenDropdownId(null);
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
+                  onClick={() => { handleDelete(lead); setOpenDropdownId(null); }}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors rounded-b-xl"
                 >
                   <X size={14} />
                   Delete

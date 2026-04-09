@@ -36,9 +36,9 @@ export default function TeamModal({
   return (
     <CommonDialog isOpen={isOpen} onClose={onClose} title={formData._id ? "Refine Team" : "Create New Team"} maxWidth="max-w-2xl">
       <form onSubmit={onSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 font-bold tracking-tight">
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-1.5">
-            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Team Name</label>
+            <label className="text-xs font-semibold text-slate-500 ml-1">Team Name</label>
             <div className="relative group">
               <Users size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
               <input 
@@ -47,13 +47,13 @@ export default function TeamModal({
                 placeholder="e.g. West Zone Sales Team" 
                 value={formData.teamName}
                 onChange={(e) => setFormData({ ...formData, teamName: e.target.value })}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-400 transition-all font-bold placeholder:text-slate-300" 
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-400 transition-all placeholder:text-slate-300" 
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Team Lead</label>
+            <label className="text-xs font-semibold text-slate-500 ml-1">Team Lead</label>
             <div className="relative group">
               <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-indigo-500 transition-colors" />
               <select 
@@ -64,7 +64,7 @@ export default function TeamModal({
                   const members = formData.members.filter((m: string) => m !== newLeaderId);
                   setFormData({ ...formData, leaderId: newLeaderId, members });
                 }}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold appearance-none outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-400 transition-all cursor-pointer"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm appearance-none outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-400 transition-all cursor-pointer"
               >
                 <option value="">Select Team Lead</option>
                 {staffMembers.map(staff => (
@@ -75,7 +75,7 @@ export default function TeamModal({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Select Members</label>
+            <label className="text-xs font-semibold text-slate-500 ml-1">Select Members</label>
             <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-1 custom-scrollbar">
               {staffMembers.filter(s => s._id !== formData.leaderId).map(staff => (
                 <button
@@ -95,7 +95,7 @@ export default function TeamModal({
                   )}>
                     {staff.fullName.split(' ').map((n: string) => n[0]).join('')}
                   </div>
-                  <span className="text-[10px] font-bold truncate">{staff.fullName}</span>
+                  <span className="text-sm truncate">{staff.fullName}</span>
                   {formData.members.includes(staff._id) && (
                     <CheckCircle2 size={12} className="ml-auto text-indigo-600" />
                   )}
@@ -109,13 +109,13 @@ export default function TeamModal({
           <button 
             type="button"
             onClick={onClose}
-            className="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl font-bold transition-all active:scale-95 text-[10px] tracking-widest"
+            className="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl font-semibold text-sm transition-all active:scale-95"
           >
             Cancel
           </button>
           <button 
             type="submit"
-            className="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-100 active:scale-95 flex items-center justify-center gap-2 text-[10px] tracking-widest"
+            className="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-indigo-100 active:scale-95 flex items-center justify-center gap-2"
           >
             <CheckCircle2 size={16} />
             {formData._id ? 'Save Changes' : 'Create Team'}
