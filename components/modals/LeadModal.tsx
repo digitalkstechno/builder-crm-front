@@ -187,7 +187,6 @@ export default function LeadModal({
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-400 transition-all appearance-none uppercase cursor-pointer"
                 required
               >
-                <option value="">Select Stage</option>
                 {leadStatuses.map(status => (
                   <option key={status._id} value={status._id}>{status.name}</option>
                 ))}

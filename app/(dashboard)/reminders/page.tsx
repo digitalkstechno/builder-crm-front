@@ -6,8 +6,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
-import { fetchReminders, markReminderCompleted } from '@/redux/slices/leadSlice';
+import { fetchReminders, markReminderCompleted, createFollowup } from '@/redux/slices/leadSlice';
 import CommonTable from '@/components/ui/CommonTable';
+import CompleteReminderModal from '@/components/modals/CompleteReminderModal';
 import Swal from 'sweetalert2';
 
 export default function RemindersPage() {
@@ -19,6 +20,10 @@ export default function RemindersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const currentLimit = 10;
 
+  // Modal state
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  const [selectedReminder, setSelectedReminder] = useState<any>(null);
+
   useEffect(() => {
     dispatch(fetchReminders({ status: activeTab, page: currentPage, limit: currentLimit }));
   }, [dispatch, activeTab, currentPage]);
@@ -28,18 +33,104 @@ export default function RemindersPage() {
     r.notes.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleMarkCompleted = async (reminderId: string) => {
+  const handleMarkCompleted = (reminder: any) => {
+    console.log('Reminder clicked for completion:', reminder);
+    setSelectedReminder(reminder);
+    setIsCompleteModalOpen(true);
+  };
+
+  const extractLeadIdFromReminder = (reminder: any): string | null => {
+    console.log('Extracting leadId from reminder:', reminder);
+
+    // Method 1: Direct leadId field
+    if (reminder.leadId) {
+      console.log('Found leadId directly:', reminder.leadId);
+      return reminder.leadId;
+    }
+
+    // Method 2: From populated lead object
+    if (reminder.lead && reminder.lead._id) {
+      console.log('Found leadId from lead object:', reminder.lead._id);
+      return reminder.lead._id;
+    }
+
+    // Method 3: From followup object
+    if (reminder.followupId) {
+      if (typeof reminder.followupId === 'object') {
+        // followupId is populated
+        if (reminder.followupId.leadId) {
+          console.log('Found leadId from followupId.leadId:', reminder.followupId.leadId);
+          return reminder.followupId.leadId;
+        }
+      } else if (typeof reminder.followupId === 'string') {
+        // followupId is just an ID string - this shouldn't happen with populated data
+        console.warn('followupId is a string, data may not be properly populated');
+      }
+    }
+
+    console.error('Could not extract leadId from reminder');
+    return null;
+  };
+
+  const handleCompleteReminderSubmit = async (data: any) => {
     try {
-      await dispatch(markReminderCompleted(reminderId)).unwrap();
+      console.log('Complete reminder data:', data);
+      console.log('Selected reminder:', selectedReminder);
+
+      if (data.outcome === 'reschedule') {
+        // Extract leadId using multiple fallback methods
+        const leadId = extractLeadIdFromReminder(selectedReminder);
+
+        if (!leadId) {
+          console.error('Complete selectedReminder data:', JSON.stringify(selectedReminder, null, 2));
+          console.error('Available keys:', Object.keys(selectedReminder));
+          throw new Error(`Cannot determine lead ID for rescheduling. Selected reminder: ${JSON.stringify(selectedReminder)}`);
+        }
+
+        console.log('Creating rescheduled followup for lead:', leadId);
+
+        const followupResult = await dispatch(createFollowup({
+          leadId: leadId,
+          followupDate: data.rescheduleData.followupDate,
+          followupTime: data.rescheduleData.followupTime || '09:00', // Default time if not provided
+          notes: data.rescheduleData.notes
+        })).unwrap();
+
+        console.log('Rescheduled followup created successfully:', followupResult);
+
+        console.log('Followup created:', followupResult);
+      }
+
+      // Mark the current reminder as completed
+      console.log('Marking reminder as completed:', selectedReminder._id);
+      await dispatch(markReminderCompleted(selectedReminder._id)).unwrap();
+
+      setIsCompleteModalOpen(false);
+      setSelectedReminder(null);
+
+      const outcomeMessage = data.outcome === 'won' ? 'Lead marked as won!' :
+                           data.outcome === 'lost' ? 'Lead marked as lost.' :
+                           'Followup rescheduled successfully!';
+
       Swal.fire({
         title: 'Success!',
-        text: 'Reminder marked as completed.',
+        text: outcomeMessage,
         icon: 'success',
         timer: 2000,
         showConfirmButton: false,
       });
-    } catch (error) {
-      console.error('Error marking reminder completed:', error);
+    } catch (error: any) {
+      console.error('Error completing reminder:', error);
+      console.error('Error details:', error.response?.data || error.message);
+
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to complete reminder. Please try again.';
+
+      Swal.fire({
+        title: 'Error!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonColor: '#ef4444',
+      });
     }
   };
 
@@ -50,7 +141,7 @@ export default function RemindersPage() {
       className: 'w-12',
       render: (reminder: any) => (
         <button
-          onClick={() => !reminder.isSent && handleMarkCompleted(reminder._id)}
+          onClick={() => !reminder.isSent && handleMarkCompleted(reminder)}
           disabled={reminder.isSent}
           className={cn(
             "w-5 h-5 rounded border flex items-center justify-center transition-colors",
@@ -137,17 +228,22 @@ export default function RemindersPage() {
       </div>
 
       <div className="flex gap-1 bg-slate-50 p-1 rounded-lg border border-slate-100 w-fit mb-4">
-        {['Missed', 'Today', 'Upcoming', 'Completed'].map((tab) => (
-          <button 
-            key={tab} 
-            onClick={() => setActiveTab(tab)}
+        {[
+          { label: 'Missed', value: 'missed' },
+          { label: 'Today', value: 'today' },
+          { label: 'Upcoming', value: 'upcoming' },
+          { label: 'Completed', value: 'completed' }
+        ].map((tab) => (
+          <button
+            key={tab.value}
+            onClick={() => setActiveTab(tab.value)}
             className={cn(
               "px-4 py-1.5 rounded-md text-[10px] uppercase tracking-wider font-semibold transition-all flex items-center gap-2",
-              activeTab === tab ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
+              activeTab === tab.value ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
             )}
           >
-            {tab === 'Missed' && <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />}
-            {tab}
+            {tab.label === 'Missed' && <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />}
+            {tab.label}
           </button>
         ))}
       </div>
@@ -165,6 +261,18 @@ export default function RemindersPage() {
           totalItems: reminderPagination.totalRecords
         }}
         onPageChange={setCurrentPage}
+      />
+
+      {/* Complete Reminder Modal */}
+      <CompleteReminderModal
+        isOpen={isCompleteModalOpen}
+        onClose={() => {
+          setIsCompleteModalOpen(false);
+          setSelectedReminder(null);
+        }}
+        onSubmit={handleCompleteReminderSubmit}
+        loading={loading}
+        reminder={selectedReminder}
       />
     </div>
   );

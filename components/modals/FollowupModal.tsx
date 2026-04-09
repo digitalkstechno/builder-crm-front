@@ -14,24 +14,25 @@ interface FollowupModalProps {
 export default function FollowupModal({ isOpen, onClose, onSubmit, loading = false, lead }: FollowupModalProps) {
   const [formData, setFormData] = useState({
     followupDate: '',
+    followupTime: '',
     notes: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.followupDate || !formData.notes.trim()) {
+    if (!formData.followupDate || !formData.followupTime || !formData.notes.trim()) {
       return;
     }
     try {
       await onSubmit(formData);
-      setFormData({ followupDate: '', notes: '' });
+      setFormData({ followupDate: '', followupTime: '', notes: '' });
     } catch (error) {
       // Error is handled by parent component
     }
   };
 
   const handleClose = () => {
-    setFormData({ followupDate: '', notes: '' });
+    setFormData({ followupDate: '', followupTime: '', notes: '' });
     onClose();
   };
 
@@ -64,18 +65,32 @@ export default function FollowupModal({ isOpen, onClose, onSubmit, loading = fal
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  Followup Date *
-                </label>
-                <input
-                  type="date"
-                  value={formData.followupDate}
-                  onChange={(e) => setFormData(prev => ({ ...prev, followupDate: e.target.value }))}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  min={new Date().toISOString().split('T')[0]}
-                  required
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Followup Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.followupDate}
+                    onChange={(e) => setFormData(prev => ({ ...prev, followupDate: e.target.value }))}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    min={new Date().toISOString().split('T')[0]}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Time *
+                  </label>
+                  <input
+                    type="time"
+                    value={formData.followupTime}
+                    onChange={(e) => setFormData(prev => ({ ...prev, followupTime: e.target.value }))}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    required
+                  />
+                </div>
               </div>
 
               <div>
@@ -112,7 +127,7 @@ export default function FollowupModal({ isOpen, onClose, onSubmit, loading = fal
                 </button>
                 <button
                   type="submit"
-                  disabled={loading || !formData.followupDate || !formData.notes.trim()}
+                  disabled={loading || !formData.followupDate || !formData.followupTime || !formData.notes.trim()}
                   className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white rounded-lg font-semibold transition-colors"
                 >
                   {loading ? 'Creating...' : 'Create Followup'}

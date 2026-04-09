@@ -445,6 +445,7 @@ export default function LeadsPage() {
       await dispatch(createFollowup({
         leadId: selectedLeadForFollowup._id,
         followupDate: data.followupDate,
+        followupTime: data.followupTime,
         notes: data.notes
       })).unwrap();
 
