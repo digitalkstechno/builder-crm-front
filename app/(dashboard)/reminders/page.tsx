@@ -6,14 +6,14 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
-import { fetchReminders, markReminderCompleted, createFollowup } from '@/redux/slices/leadSlice';
+import { fetchReminders, markReminderCompleted, createFollowup, fetchLeadStatuses, updateLead } from '@/redux/slices/leadSlice';
 import CommonTable from '@/components/ui/CommonTable';
 import CompleteReminderModal from '@/components/modals/CompleteReminderModal';
 import Swal from 'sweetalert2';
 
 export default function RemindersPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { reminders, reminderPagination, loading } = useSelector((state: RootState) => state.lead);
+  const { reminders, reminderPagination, loading, leadStatuses } = useSelector((state: RootState) => state.lead);
 
   const [activeTab, setActiveTab] = useState('today');
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,6 +27,12 @@ export default function RemindersPage() {
   useEffect(() => {
     dispatch(fetchReminders({ status: activeTab, page: currentPage, limit: currentLimit }));
   }, [dispatch, activeTab, currentPage]);
+
+  useEffect(() => {
+    if (leadStatuses.length === 0) {
+      dispatch(fetchLeadStatuses());
+    }
+  }, [dispatch, leadStatuses.length]);
 
   const filteredReminders = reminders.filter(r =>
     r.lead.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -104,6 +110,24 @@ export default function RemindersPage() {
       // Mark the current reminder as completed
       console.log('Marking reminder as completed:', selectedReminder._id);
       await dispatch(markReminderCompleted(selectedReminder._id)).unwrap();
+
+      // Update lead status if outcome is 'won' or 'lost'
+      if (data.outcome === 'won' || data.outcome === 'lost') {
+        const leadId = extractLeadIdFromReminder(selectedReminder);
+        if (leadId) {
+          const statusKey = data.outcome === 'won' ? 'WON' : 'LOST';
+          const status = leadStatuses.find(s => s.key === statusKey);
+          if (status) {
+            console.log(`Updating lead ${leadId} status to ${statusKey}`);
+            await dispatch(updateLead({
+              id: leadId,
+              data: { stageId: status._id, stageName: status.name }
+            })).unwrap();
+          } else {
+            console.warn(`Lead status with key ${statusKey} not found`);
+          }
+        }
+      }
 
       setIsCompleteModalOpen(false);
       setSelectedReminder(null);

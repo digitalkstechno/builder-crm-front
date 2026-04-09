@@ -86,6 +86,14 @@ export default function LeadsPage() {
   const [selectedLeadForView, setSelectedLeadForView] = useState<any>(null);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
+  // Filter states
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    status: 'all',
+    source: 'all',
+    agent: 'all'
+  });
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
@@ -95,8 +103,15 @@ export default function LeadsPage() {
   }, [searchTerm]);
 
   useEffect(() => {
-    dispatch(fetchLeads({ page: currentPage, limit: currentLimit, search: debouncedSearch }));
-  }, [dispatch, currentPage, debouncedSearch]);
+    dispatch(fetchLeads({
+      page: currentPage,
+      limit: currentLimit,
+      search: debouncedSearch,
+      status: filters.status !== 'all' ? filters.status : undefined,
+      source: filters.source !== 'all' ? filters.source : undefined,
+      agent: filters.agent !== 'all' ? filters.agent : undefined
+    }));
+  }, [dispatch, currentPage, debouncedSearch, filters]);
 
   useEffect(() => {
     dispatch(fetchLeadStatuses());
@@ -110,11 +125,14 @@ export default function LeadsPage() {
       if (openDropdownId && !(event.target as Element).closest('.dropdown-container')) {
         setOpenDropdownId(null);
       }
+      if (isFilterOpen && !(event.target as Element).closest('.filter-container')) {
+        setIsFilterOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [openDropdownId]);
+  }, [openDropdownId, isFilterOpen]);
 
   const columns = [
     {
@@ -533,9 +551,99 @@ export default function LeadsPage() {
         </div>
         
         <div className="flex items-center gap-3">
-          <button className="p-2.5 text-slate-500 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all shadow-sm">
-            <Filter size={18} />
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className={cn(
+                "p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2",
+                (filters.status !== 'all' || filters.source !== 'all' || filters.agent !== 'all') && "border-indigo-300 bg-indigo-50"
+              )}
+            >
+              <Filter size={18} className={(filters.status !== 'all' || filters.source !== 'all' || filters.agent !== 'all') ? "text-indigo-600" : "text-slate-500"} />
+              {(filters.status !== 'all' || filters.source !== 'all' || filters.agent !== 'all') && (
+                <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
+              )}
+            </button>
+
+            {isFilterOpen && (
+              <div className="filter-container absolute right-0 top-full mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-slate-900">Filters</h3>
+                  <button
+                    onClick={() => {
+                      setFilters({ status: 'all', source: 'all', agent: 'all' });
+                      setCurrentPage(1);
+                    }}
+                    className="text-xs text-slate-500 hover:text-slate-700 font-medium"
+                  >
+                    Clear all
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Status Filter */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-2">Status</label>
+                    <select
+                      value={filters.status}
+                      onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="all">All Statuses</option>
+                      {leadStatuses.map((status: any) => (
+                        <option key={status._id} value={status._id}>{status.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Source Filter */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-2">Source</label>
+                    <select
+                      value={filters.source}
+                      onChange={(e) => setFilters(prev => ({ ...prev, source: e.target.value }))}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="all">All Sources</option>
+                      <option value="WhatsApp">WhatsApp</option>
+                      <option value="Facebook">Facebook</option>
+                      <option value="Website">Website</option>
+                      <option value="Walk-in">Walk-in</option>
+                      <option value="Referral">Referral</option>
+                    </select>
+                  </div>
+
+                  {/* Agent Filter */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-2">Assigned To</label>
+                    <select
+                      value={filters.agent}
+                      onChange={(e) => setFilters(prev => ({ ...prev, agent: e.target.value }))}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="all">All Agents</option>
+                      <option value="unassigned">Unassigned</option>
+                      {staffDropdown.map((staff: any) => (
+                        <option key={staff._id} value={staff._id}>{staff.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
+                  <button
+                    onClick={() => {
+                      setIsFilterOpen(false);
+                      setCurrentPage(1);
+                    }}
+                    className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors"
+                  >
+                    Apply Filters
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
           <button
             onClick={() => setIsAddModalOpen(true)}
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-200"

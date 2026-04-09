@@ -73,9 +73,24 @@ const initialState: LeadState = {
 
 export const fetchLeads = createAsyncThunk(
   'lead/fetchLeads',
-  async ({ page = 1, limit = 10, search = '' }: { page?: number, limit?: number, search?: string }, { rejectWithValue }) => {
+  async ({ page = 1, limit = 10, search = '', status, source, agent }: {
+    page?: number,
+    limit?: number,
+    search?: string,
+    status?: string,
+    source?: string,
+    agent?: string
+  }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`/lead?page=${page}&limit=${limit}&search=${search}`);
+      const params = new URLSearchParams();
+      if (page) params.append('page', page.toString());
+      if (limit) params.append('limit', limit.toString());
+      if (search) params.append('search', search);
+      if (status) params.append('status', status);
+      if (source) params.append('source', source);
+      if (agent) params.append('agent', agent);
+
+      const response = await axios.get(`/lead?${params.toString()}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch leads');
