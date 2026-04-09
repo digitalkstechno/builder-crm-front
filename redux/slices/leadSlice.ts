@@ -26,6 +26,14 @@ interface LeadState {
     leader: any;
     members: any[];
   };
+  followups: any[];
+  reminders: any[];
+  reminderPagination: {
+    totalRecords: number;
+    currentPage: number;
+    totalPages: number;
+    limit: number;
+  };
   pagination: {
     totalRecords: number;
     currentPage: number;
@@ -44,6 +52,14 @@ const initialState: LeadState = {
   siteTeamMembers: {
     leader: null,
     members: []
+  },
+  followups: [],
+  reminders: [],
+  reminderPagination: {
+    totalRecords: 0,
+    currentPage: 1,
+    totalPages: 1,
+    limit: 10
   },
   pagination: {
     totalRecords: 0,
@@ -151,6 +167,80 @@ export const deleteLead = createAsyncThunk(
   }
 );
 
+// Followup actions
+export const createFollowup = createAsyncThunk(
+  'lead/createFollowup',
+  async (followupData: any, { rejectWithValue }) => {
+    try {
+      const response = await axios.post('/lead/followup', followupData);
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to create followup');
+    }
+  }
+);
+
+export const fetchLeadFollowups = createAsyncThunk(
+  'lead/fetchLeadFollowups',
+  async (leadId: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`/lead/${leadId}/followups`);
+      return { leadId, followups: response.data.data };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch followups');
+    }
+  }
+);
+
+export const updateFollowup = createAsyncThunk(
+  'lead/updateFollowup',
+  async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`/lead/followup/${id}`, data);
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update followup');
+    }
+  }
+);
+
+export const deleteFollowup = createAsyncThunk(
+  'lead/deleteFollowup',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      await axios.delete(`/lead/followup/${id}`);
+      return id;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete followup');
+    }
+  }
+);
+
+// Reminder actions
+export const fetchReminders = createAsyncThunk(
+  'lead/fetchReminders',
+  async ({ status, page = 1, limit = 10 }: { status?: string, page?: number, limit?: number }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`/reminders?status=${status}&page=${page}&limit=${limit}`);
+      return { status, ...response.data };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch reminders');
+    }
+  }
+);
+
+export const markReminderCompleted = createAsyncThunk(
+  'lead/markReminderCompleted',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      await axios.put(`/reminders/${id}/complete`);
+      return id;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to mark reminder completed');
+    }
+  }
+);
+
 const leadSlice = createSlice({
   name: 'lead',
   initialState,
@@ -202,6 +292,38 @@ const leadSlice = createSlice({
       .addCase(deleteLead.fulfilled, (state, action) => {
         state.leads = state.leads.filter((l) => l._id !== action.payload);
         state.pagination.totalRecords -= 1;
+      })
+      // Create Followup
+      .addCase(createFollowup.fulfilled, (state, action) => {
+        // Optionally update lead with followup info if needed
+      })
+      // Fetch Lead Followups
+      .addCase(fetchLeadFollowups.fulfilled, (state, action) => {
+        state.followups = action.payload.followups;
+      })
+      // Update Followup
+      .addCase(updateFollowup.fulfilled, (state, action) => {
+        const index = state.followups.findIndex((f) => f._id === action.payload._id);
+        if (index !== -1) {
+          state.followups[index] = action.payload;
+        }
+      })
+      // Delete Followup
+      .addCase(deleteFollowup.fulfilled, (state, action) => {
+        state.followups = state.followups.filter((f) => f._id !== action.payload);
+      })
+      // Fetch Reminders
+      .addCase(fetchReminders.fulfilled, (state, action) => {
+        state.reminders = action.payload.data;
+        state.reminderPagination = action.payload.pagination;
+      })
+      // Mark Reminder Completed
+      .addCase(markReminderCompleted.fulfilled, (state, action) => {
+        const index = state.reminders.findIndex((r) => r._id === action.payload);
+        if (index !== -1) {
+          state.reminders[index].isSent = true;
+          state.reminders[index].sentAt = new Date().toISOString();
+        }
       });
   },
 });

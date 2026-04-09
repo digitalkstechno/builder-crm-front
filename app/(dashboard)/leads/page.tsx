@@ -17,7 +17,9 @@ import {
   Calendar,
   LayoutGrid,
   List,
-  MapPin
+  MapPin,
+  ChevronDown,
+  MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -30,9 +32,13 @@ import {
   fetchSitesDropdown,
   createLead,
   updateLead,
-  deleteLead
+  deleteLead,
+  createFollowup,
+  fetchLeadFollowups
 } from '@/redux/slices/leadSlice';
 import LeadModal from '@/components/modals/LeadModal';
+import FollowupModal from '@/components/modals/FollowupModal';
+import ViewFollowupsModal from '@/components/modals/ViewFollowupsModal';
 import CommonTable from '@/components/ui/CommonTable';
 
 // Define Lead interface for TypeScript
@@ -72,6 +78,13 @@ export default function LeadsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const currentLimit = 10;
 
+  // Followup related state
+  const [isFollowupModalOpen, setIsFollowupModalOpen] = useState(false);
+  const [selectedLeadForFollowup, setSelectedLeadForFollowup] = useState<any>(null);
+  const [isViewFollowupsModalOpen, setIsViewFollowupsModalOpen] = useState(false);
+  const [selectedLeadForView, setSelectedLeadForView] = useState<any>(null);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
@@ -89,6 +102,18 @@ export default function LeadsPage() {
     dispatch(fetchStaffDropdown());
     dispatch(fetchSitesDropdown());
   }, [dispatch]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openDropdownId && !(event.target as Element).closest('.dropdown-container')) {
+        setOpenDropdownId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [openDropdownId]);
 
   const columns = [
     {
@@ -225,12 +250,38 @@ export default function LeadsPage() {
           >
             <Edit3 size={14} />
           </button>
-          <button
-            onClick={() => handleDelete(lead)}
-            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-50 rounded-lg transition-all"
-          >
-            <MoreVertical size={14} />
-          </button>
+          <div className="relative dropdown-container">
+            <button
+              onClick={() => toggleDropdown(lead._id)}
+              className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all"
+            >
+              <MoreVertical size={14} />
+            </button>
+            {openDropdownId === lead._id && (
+              <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-slate-200 rounded-lg shadow-lg z-10">
+                <button
+                  onClick={() => {
+                    handleOpenFollowupModal(lead);
+                    setOpenDropdownId(null);
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  <MessageSquare size={14} />
+                  Add Followup
+                </button>
+                <button
+                  onClick={() => {
+                    handleDelete(lead);
+                    setOpenDropdownId(null);
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
+                >
+                  <X size={14} />
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )
     }
@@ -363,6 +414,51 @@ export default function LeadsPage() {
     }
   };
 
+  const toggleDropdown = (leadId: string) => {
+    setOpenDropdownId(openDropdownId === leadId ? null : leadId);
+  };
+
+  const handleOpenFollowupModal = (lead: any) => {
+    setSelectedLeadForFollowup(lead);
+    setIsFollowupModalOpen(true);
+  };
+
+  const handleOpenViewFollowupsModal = (lead: any) => {
+    setSelectedLeadForView(lead);
+    dispatch(fetchLeadFollowups(lead._id));
+    setIsViewFollowupsModalOpen(true);
+  };
+
+  const handleFollowupSubmit = async (data: any) => {
+    try {
+      await dispatch(createFollowup({
+        leadId: selectedLeadForFollowup._id,
+        followupDate: data.followupDate,
+        notes: data.notes
+      })).unwrap();
+
+      // Close modal and reset state
+      setIsFollowupModalOpen(false);
+      setSelectedLeadForFollowup(null);
+
+      Swal.fire({
+        title: 'Success!',
+        text: 'Followup created successfully with reminder set.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error('Error creating followup:', error);
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to create followup. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#ef4444',
+      });
+    }
+  };
+
   const KanbanCard = ({ lead, onDragStart, onEdit, onDelete }: {
     lead: any,
     onDragStart: (e: React.DragEvent, id: string) => void,
@@ -447,7 +543,14 @@ export default function LeadsPage() {
           <button className="p-2.5 text-slate-500 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all shadow-sm">
             <Filter size={18} />
           </button>
-          <button 
+          <button
+            onClick={() => setIsViewFollowupsModalOpen(true)}
+            className="flex items-center gap-2 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg"
+          >
+            <Calendar size={18} />
+            View Followups
+          </button>
+          <button
             onClick={() => setIsAddModalOpen(true)}
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-200"
           >
@@ -544,6 +647,28 @@ export default function LeadsPage() {
         initialData={editingLead}
         leadStatuses={leadStatuses}
         sitesDropdown={sitesDropdown}
+      />
+
+      {/* Add Followup Modal */}
+      <FollowupModal
+        isOpen={isFollowupModalOpen}
+        onClose={() => {
+          setIsFollowupModalOpen(false);
+          setSelectedLeadForFollowup(null);
+        }}
+        onSubmit={handleFollowupSubmit}
+        loading={loading}
+        lead={selectedLeadForFollowup}
+      />
+
+      {/* View Followups Modal */}
+      <ViewFollowupsModal
+        isOpen={isViewFollowupsModalOpen}
+        onClose={() => {
+          setIsViewFollowupsModalOpen(false);
+          setSelectedLeadForView(null);
+        }}
+        lead={selectedLeadForView}
       />
     </div>
   );

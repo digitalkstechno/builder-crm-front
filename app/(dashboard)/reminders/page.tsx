@@ -1,26 +1,47 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Calendar, CheckCircle2, Search, PhoneCall, MessageCircle, Clock, MoreHorizontal } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, CheckCircle2, Search, PhoneCall, MessageCircle, Clock, MoreHorizontal, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/redux/store';
+import { fetchReminders, markReminderCompleted } from '@/redux/slices/leadSlice';
 import CommonTable from '@/components/ui/CommonTable';
-
-const mockReminders = [
-  { id: 1, lead: 'Rahul Sharma', project: 'Skyline Hub', type: 'Call', time: '10:30 AM', status: 'Pending', priority: 'High' },
-  { id: 2, lead: 'Priya Patel', project: 'Green Valley', type: 'WhatsApp', time: '11:15 AM', status: 'Pending', priority: 'Medium' },
-  { id: 3, lead: 'Amit Kumar', project: 'Oceanview Heights', type: 'Call', time: '02:00 PM', status: 'Completed', priority: 'High' },
-  { id: 4, lead: 'Sneha Gupta', project: 'Skyline Hub', type: 'WhatsApp', time: '04:45 PM', status: 'Pending', priority: 'Low' },
-];
+import Swal from 'sweetalert2';
 
 export default function RemindersPage() {
-  const [activeTab, setActiveTab] = useState('Today');
-  const [searchTerm, setSearchTerm] = useState('');
+  const dispatch = useDispatch<AppDispatch>();
+  const { reminders, reminderPagination, loading } = useSelector((state: RootState) => state.lead);
 
-  const filteredReminders = mockReminders.filter(r => 
+  const [activeTab, setActiveTab] = useState('today');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const currentLimit = 10;
+
+  useEffect(() => {
+    dispatch(fetchReminders({ status: activeTab, page: currentPage, limit: currentLimit }));
+  }, [dispatch, activeTab, currentPage]);
+
+  const filteredReminders = reminders.filter(r =>
     r.lead.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.project.toLowerCase().includes(searchTerm.toLowerCase())
+    r.notes.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleMarkCompleted = async (reminderId: string) => {
+    try {
+      await dispatch(markReminderCompleted(reminderId)).unwrap();
+      Swal.fire({
+        title: 'Success!',
+        text: 'Reminder marked as completed.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error('Error marking reminder completed:', error);
+    }
+  };
 
   const columns = [
     {
@@ -28,13 +49,17 @@ export default function RemindersPage() {
       key: 'status',
       className: 'w-12',
       render: (reminder: any) => (
-        <button className={cn(
-          "w-5 h-5 rounded border flex items-center justify-center transition-colors",
-          reminder.status === 'Completed' 
-            ? "bg-emerald-500 border-emerald-500 text-white" 
-            : "border-slate-300 hover:border-slate-400 text-transparent hover:text-slate-200"
-        )}>
-           <CheckCircle2 size={12} fill="currentColor" className={reminder.status === 'Completed' ? "text-white" : "text-slate-300"} />
+        <button
+          onClick={() => !reminder.isSent && handleMarkCompleted(reminder._id)}
+          disabled={reminder.isSent}
+          className={cn(
+            "w-5 h-5 rounded border flex items-center justify-center transition-colors",
+            reminder.isSent
+              ? "bg-emerald-500 border-emerald-500 text-white cursor-not-allowed"
+              : "border-slate-300 hover:border-emerald-400 hover:bg-emerald-50 text-transparent hover:text-emerald-500 cursor-pointer"
+          )}
+        >
+           <Check size={12} className={reminder.isSent ? "text-white" : "text-slate-300"} />
         </button>
       )
     },
@@ -45,44 +70,55 @@ export default function RemindersPage() {
         <div className="flex items-center gap-3">
           <div className={cn(
             "w-8 h-8 rounded-lg flex items-center justify-center",
-            reminder.type === 'Call' ? "bg-indigo-50 text-indigo-600" : "bg-emerald-50 text-emerald-600"
+            "bg-indigo-50 text-indigo-600"
           )}>
-             {reminder.type === 'Call' ? <PhoneCall size={12} /> : <MessageCircle size={12} />}
+             <MessageCircle size={12} />
           </div>
           <div>
              <span className="font-semibold text-slate-900 text-xs tracking-tight block">{reminder.lead}</span>
-             <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">{reminder.type} Follow-up</span>
+             <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Follow-up Reminder</span>
           </div>
         </div>
       )
     },
     {
-      header: 'Project',
-      key: 'project',
+      header: 'Followup Date',
+      key: 'followupDate',
       render: (reminder: any) => (
         <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider bg-slate-50 border border-slate-100 px-2 py-0.5 rounded">
-           {reminder.project}
+           {reminder.followupDate}
         </span>
       )
     },
     {
       header: 'Schedule',
-      key: 'time',
+      key: 'reminderTime',
       render: (reminder: any) => (
         <div className="flex items-center gap-1.5 text-slate-600 font-medium text-xs bg-slate-50 px-2 py-0.5 w-fit rounded border border-slate-100">
            <Clock size={12} className="text-slate-400" />
-           {reminder.time}
+           {reminder.reminderTime}
         </div>
       )
     },
     {
-      header: 'Options',
-      key: 'options',
-      className: 'text-right',
-      render: () => (
-        <button className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 ml-1">
-          <MoreHorizontal size={14} />
-        </button>
+      header: 'Notes',
+      key: 'notes',
+      render: (reminder: any) => (
+        <div className="max-w-xs truncate text-xs text-slate-600">
+          {reminder.notes}
+        </div>
+      )
+    },
+    {
+      header: 'Status',
+      key: 'status',
+      render: (reminder: any) => (
+        <span className={cn(
+          "text-[9px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider",
+          reminder.isSent ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+        )}>
+          {reminder.isSent ? 'Completed' : 'Pending'}
+        </span>
       )
     }
   ];
@@ -116,21 +152,19 @@ export default function RemindersPage() {
         ))}
       </div>
 
-      <CommonTable 
+      <CommonTable
         title="Daily Tasks"
         columns={columns}
         data={filteredReminders}
-        loading={false}
+        loading={loading}
         searchValue={searchTerm}
         onSearchChange={setSearchTerm}
-        searchPlaceholder="Search leads..."
+        searchPlaceholder="Search leads or notes..."
         pagination={{
-          totalItems: filteredReminders.length,
-          totalPages: 1,
-          currentPage: 1,
-          limit: 10
+          ...reminderPagination,
+          totalItems: reminderPagination.totalRecords
         }}
-        onPageChange={() => {}}
+        onPageChange={setCurrentPage}
       />
     </div>
   );
