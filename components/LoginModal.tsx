@@ -35,17 +35,18 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
     try {
       const response = await axios.post('/builder/login', formData);
       if (response.data.success) {
+        console.log("[Login] Success, setting auth and redirecting...");
         dispatch(setAuth({
           user: response.data.data.user,
           builder: response.data.data.builder,
           token: response.data.token
         }));
         
-        if (response.data.data.user.role === 'STAFF') {
-          router.push('/leads');
-        } else {
-          router.push('/dashboard');
-        }
+        const redirectPath = response.data.data.user.role === 'STAFF' ? '/leads' : '/dashboard';
+        console.log(`[Login] Redirecting to ${redirectPath}`);
+        
+        // Use window.location.href for a full refresh to ensure cookies/middleware sync
+        window.location.href = redirectPath;
         onClose();
         toast.success("Welcome back!");
       }

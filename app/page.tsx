@@ -22,7 +22,11 @@ import Link from 'next/link';
 import RegistrationModal from '@/components/RegistrationModal';
 import LoginModal from '@/components/LoginModal';
 
-const Navbar = ({ onLoginClick }: { onLoginClick: () => void }) => (
+const Navbar = ({ onLoginClick, isAuthenticated, userRole }: { 
+  onLoginClick: () => void, 
+  isAuthenticated?: boolean,
+  userRole?: string 
+}) => (
   <header className="fixed top-0 left-0 right-0 z-[100] px-6 py-4">
     <nav className="max-w-7xl mx-auto flex items-center justify-between p-2 px-6 rounded-2xl bg-white/70 backdrop-blur-md border border-white/20 shadow-lg shadow-indigo-500/5">
       <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
@@ -41,15 +45,26 @@ const Navbar = ({ onLoginClick }: { onLoginClick: () => void }) => (
       </div>
 
       <div className="flex items-center gap-4">
-        <button 
-          onClick={onLoginClick}
-          className="text-sm font-bold text-slate-600 hover:text-slate-900 px-6 py-2.5 transition-colors uppercase tracking-[0.1em]"
-        >
-          Sign In
-        </button>
-        <Link href="#pricing" className="bg-slate-900 hover:bg-slate-800 text-white px-8 py-3.5 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-slate-900/10 uppercase tracking-[0.1em]">
-          Join Now
-        </Link>
+        {isAuthenticated ? (
+          <Link 
+            href={userRole === 'STAFF' ? '/leads' : '/dashboard'}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-2xl text-sm font-bold transition-all shadow-lg shadow-indigo-600/20 uppercase tracking-[0.1em]"
+          >
+            Go to Dashboard
+          </Link>
+        ) : (
+          <>
+            <button 
+              onClick={onLoginClick}
+              className="text-sm font-bold text-slate-600 hover:text-slate-900 px-6 py-2.5 transition-colors uppercase tracking-[0.1em]"
+            >
+              Sign In
+            </button>
+            <Link href="#pricing" className="bg-slate-900 hover:bg-slate-800 text-white px-8 py-3.5 rounded-2xl text-sm font-bold transition-all shadow-xl shadow-slate-900/10 uppercase tracking-[0.1em]">
+              Join Now
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   </header>
@@ -133,6 +148,7 @@ import { fetchPlans } from '@/redux/slices/planSlice';
 export default function LandingPage() {
   const dispatch = useDispatch<AppDispatch>();
   const { plans, loading: isLoading, error } = useSelector((state: RootState) => state.plan);
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -149,7 +165,11 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-indigo-100 selection:text-indigo-900 overflow-x-hidden">
-      <Navbar onLoginClick={() => setIsLoginOpen(true)} />
+      <Navbar 
+        onLoginClick={() => setIsLoginOpen(true)} 
+        isAuthenticated={isAuthenticated}
+        userRole={user?.role}
+      />
 
       <main>
         {/* Hero Section */}
