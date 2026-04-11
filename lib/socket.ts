@@ -5,7 +5,9 @@ let socket: Socket | null = null;
 export const getSocket = () => {
   if (!socket) {
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000";
-    socket = io(socketUrl);
+    socket = io(socketUrl, {
+      path: "/api/socket.io",
+    });
   }
   return socket;
 };
