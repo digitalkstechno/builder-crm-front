@@ -8,6 +8,18 @@ export const getSocket = () => {
     socket = io(socketUrl, {
       path: "/api/socket.io",
     });
+
+    socket.on("connect", () => {
+      console.log("[Socket] Connected to server:", socket?.id);
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("[Socket] Connection error:", error.message);
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log("[Socket] Disconnected:", reason);
+    });
   }
   return socket;
 };
