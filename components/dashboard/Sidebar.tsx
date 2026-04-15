@@ -72,6 +72,7 @@ export default function Sidebar() {
   const router = useRouter();
   const { user, builder } = useSelector((state: RootState) => state.auth);
   const [mounted, setMounted] = React.useState(false);
+  const [todayCounts, setTodayCounts] = React.useState({ leads: 0, reminders: 0 });
 
   React.useEffect(() => {
     setMounted(true);
@@ -79,10 +80,7 @@ export default function Sidebar() {
 
   React.useEffect(() => {
     const fetchProfile = async () => {
-      // Only fetch if we are missing the critical company information 
-      // AND we have a user session. This prevents unnecessary API calls.
       const isMissingData = !builder || !builder.companyName;
-
       if (mounted && user?._id && isMissingData) {
         try {
           const response = await axios.get(`/builder/profile/${user._id}`);
@@ -96,6 +94,13 @@ export default function Sidebar() {
     };
     fetchProfile();
   }, [mounted, user?._id, builder?.companyName, dispatch]);
+
+  React.useEffect(() => {
+    if (!mounted || !user?._id) return;
+    axios.get('/lead/today-counts')
+      .then(res => setTodayCounts(res.data.data))
+      .catch(() => {});
+  }, [mounted, user?._id]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -133,8 +138,8 @@ export default function Sidebar() {
         <div>
           <p className="px-3 text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-2">Core</p>
           <div className="space-y-0.5">
-            <SidebarItem icon={Users} label="Leads" href="/leads" badge={47} />
-            <SidebarItem icon={Bell} label="Reminders" href="/reminders" badge={8} />
+            <SidebarItem icon={Users} label="Leads" href="/leads" badge={todayCounts.leads || undefined} />
+            <SidebarItem icon={Bell} label="Reminders" href="/reminders" badge={todayCounts.reminders || undefined} />
           </div>
         </div>
 
