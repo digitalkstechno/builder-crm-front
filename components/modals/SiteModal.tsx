@@ -1,10 +1,14 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import CommonDialog from '@/components/ui/CommonDialog';
 import { Building2, MapPin, IndianRupee, Smartphone, GitMerge, UploadCloud, Trash2, Tag, Plus, X, Check } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { motion } from "framer-motion";
+import 'react-quill-new/dist/quill.snow.css';
+
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 interface SiteModalProps {
   isOpen: boolean;
@@ -201,9 +205,21 @@ export default function SiteModal({
 
           <div className="col-span-2 space-y-1">
             <label className={labelCls}>Project Description</label>
-            <textarea required placeholder="Brief overview of the project..." value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={2}
-              className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm placeholder:text-slate-300 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 transition-all resize-none" />
+            <div className="quill-wrapper rounded-xl overflow-hidden border border-slate-200 focus-within:border-indigo-400 focus-within:ring-4 focus-within:ring-indigo-50 transition-all">
+              <ReactQuill
+                theme="snow"
+                value={formData.description || ''}
+                onChange={(val) => setFormData({ ...formData, description: val })}
+                placeholder="Brief overview of the project..."
+                modules={{
+                  toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    ['clean'],
+                  ],
+                }}
+              />
+            </div>
           </div>
 
           <div className="col-span-2 space-y-1">
@@ -238,7 +254,6 @@ export default function SiteModal({
             )}
           </div>
 
-          {/* Budget Section */}
           <div className="col-span-2 space-y-2">
             <div className="flex items-center justify-between">
               <label className={labelCls}>Budget Range</label>
@@ -292,16 +307,6 @@ export default function SiteModal({
                 </div>
               </div>
             )}
-          </div>
-
-          <div className="space-y-1">
-            <label className={labelCls}>Price Range</label>
-            <div className="relative group">
-              <IndianRupee size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-              <input type="text" placeholder="e.g. 1.2Cr - 2.5Cr" value={formData.priceRange}
-                onChange={(e) => setFormData({ ...formData, priceRange: e.target.value })}
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm placeholder:text-slate-300 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 transition-all" />
-            </div>
           </div>
 
           <div className="space-y-1">

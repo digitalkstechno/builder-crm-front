@@ -5,6 +5,7 @@ import { Building2, Plus, Search, MapPin, MoreVertical, Edit3, Trash2, Eye, Layo
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { getSocket } from '@/lib/socket';
+import { useRouter } from 'next/navigation';
 import SiteModal from '@/components/modals/SiteModal';
 import CommonTable from '@/components/ui/CommonTable';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,7 +29,6 @@ const emptyForm = {
   propertyTypes: [] as string[],
   requirementTypes: [] as string[],
   budgets: [] as string[],
-  priceRange: '',
   whatsappNumber: '',
   staff: '',
   teamId: '',
@@ -39,6 +39,7 @@ const emptyForm = {
 
 export default function SitesPage() {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
   const { sites, pagination, loading } = useSelector((state: RootState) => state.site);
   const { teams, staffDropdown } = useSelector((state: RootState) => state.team);
   const { whatsappList } = useSelector((state: RootState) => state.whatsapp);
@@ -212,7 +213,7 @@ export default function SitesPage() {
           </div>
           <div>
             <span className="font-semibold text-slate-900 text-sm block">{site.name}</span>
-            <span className="text-xs text-slate-400 truncate max-w-[200px] block">{site.description}</span>
+            {/* <span className="text-xs text-slate-400 truncate max-w-[200px] block">{site.description}</span> */}
           </div>
         </div>
       )
@@ -258,13 +259,6 @@ export default function SitesPage() {
               </span>
             ))}
         </div>
-      )
-    },
-    {
-      header: 'Price Range',
-      key: 'priceRange',
-      render: (site: any) => (
-        <span className="text-sm font-semibold text-slate-900">{site.priceRange}</span>
       )
     },
     {
@@ -334,8 +328,9 @@ export default function SitesPage() {
       render: (site: any) => (
         <div className="flex items-center justify-end gap-1">
           <button
-            onClick={() => handleView(site)}
+            onClick={() => router.push(`/property/${site._id}`)}
             className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-all"
+            title="View Public Page"
           >
             <Eye size={14} />
           </button>

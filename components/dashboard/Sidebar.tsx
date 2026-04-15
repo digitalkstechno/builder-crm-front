@@ -3,31 +3,33 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, 
+import {
+  LayoutDashboard,
   Activity,
-  Users, 
-  GitMerge, 
-  Bell, 
-  Building2, 
-  Home, 
-  MessageSquare, 
-  FileText, 
-  Users2, 
+  Users,
+  GitMerge,
+  Bell,
+  Building2,
+  Home,
+  MessageSquare,
+  FileText,
+  Users2,
   BarChart3,
   CreditCard,
-  BookOpen
+  BookOpen,
+  ExternalLink,
+  Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const SidebarItem = ({ 
-  icon: Icon, 
-  label, 
+const SidebarItem = ({
+  icon: Icon,
+  label,
   href,
-  badge 
-}: { 
-  icon: any, 
-  label: string, 
+  badge
+}: {
+  icon: any,
+  label: string,
   href: string,
   badge?: string | number
 }) => {
@@ -39,8 +41,8 @@ const SidebarItem = ({
       href={href}
       className={cn(
         "w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all duration-200 group",
-        active 
-          ? "bg-indigo-50 text-indigo-600 font-semibold" 
+        active
+          ? "bg-indigo-50 text-indigo-600 font-semibold"
           : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
       )}
     >
@@ -80,7 +82,7 @@ export default function Sidebar() {
       // Only fetch if we are missing the critical company information 
       // AND we have a user session. This prevents unnecessary API calls.
       const isMissingData = !builder || !builder.companyName;
-      
+
       if (mounted && user?._id && isMissingData) {
         try {
           const response = await axios.get(`/builder/profile/${user._id}`);
@@ -161,13 +163,25 @@ export default function Sidebar() {
                 <SidebarItem icon={CreditCard} label="Billing & Plans" href="/subscriptions" />
                 <SidebarItem icon={Activity} label="Status" href="/status" />
                 <SidebarItem icon={BookOpen} label="Masters" href="/masters" />
+                <SidebarItem icon={Globe} label="Manage Website" href="/manage-website" />
               </div>
             </div>
           </>
         )}
       </nav>
 
-      <div className="p-3 border-t border-slate-50">
+      <div className="p-3 border-t border-slate-50 space-y-2">
+        {mounted && builder?._id && (
+          <a
+            href={`/builder/${builder._id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-600 transition-colors"
+          >
+            <ExternalLink size={14} />
+            <span className="text-xs font-semibold">Visit Website</span>
+          </a>
+        )}
         <div className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-50/50 group relative">
           <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold text-xs shadow-sm">
             {mounted ? initials : "U"}
@@ -177,13 +191,13 @@ export default function Sidebar() {
               {mounted ? name : "User"}
             </p>
             <p className="text-[9px] font-medium text-slate-500 truncate uppercase tracking-tighter">
-              {mounted 
+              {mounted
                 ? `${user?.role === 'STAFF' ? 'Staff' : 'Builder'}`
                 : "Builder"
               }
             </p>
           </div>
-          <button 
+          <button
             onClick={handleLogout}
             className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-white rounded-md transition-all duration-200"
             title="Logout"

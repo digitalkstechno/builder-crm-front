@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme {
   --font-outfit: var(--font-outfit);
@@ -24,4 +25,56 @@
   body {
     @apply bg-white text-slate-900;
   }
+}
+
+/* React Quill Editor Styles */
+.quill-wrapper .ql-toolbar {
+  border: none !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  background: #f8fafc;
+  border-radius: 0;
+  padding: 6px 10px;
+}
+
+.quill-wrapper .ql-container {
+  border: none !important;
+  font-size: 13px;
+  font-family: inherit;
+  min-height: 80px;
+  background: #f8fafc;
+}
+
+.quill-wrapper .ql-editor {
+  min-height: 80px;
+  padding: 10px 14px;
+  color: #0f172a;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.quill-wrapper .ql-editor.ql-blank::before {
+  color: #cbd5e1;
+  font-style: normal;
+  font-size: 13px;
+}
+
+.quill-wrapper .ql-toolbar button:hover .ql-stroke,
+.quill-wrapper .ql-toolbar button.ql-active .ql-stroke {
+  stroke: #4f46e5;
+}
+
+.quill-wrapper .ql-toolbar button:hover .ql-fill,
+.quill-wrapper .ql-toolbar button.ql-active .ql-fill {
+  fill: #4f46e5;
+}
+
+/* Property view page - rich text content */
+.prose * {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.prose p, .prose li, .prose h1, .prose h2, .prose h3 {
+  max-width: 100%;
+  white-space: normal;
 }
