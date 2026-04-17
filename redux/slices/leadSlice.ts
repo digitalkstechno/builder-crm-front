@@ -259,9 +259,15 @@ export const exportLeads = createAsyncThunk(
 
 export const downloadSampleExcel = createAsyncThunk(
   'lead/downloadSampleExcel',
-  async (_, { rejectWithValue }) => {
+  async (filters: { site?: string; source?: string; stage?: string } = {}, { rejectWithValue }) => {
     try {
-      const response = await axios.get('/lead/sample-excel', { responseType: 'blob' });
+      const params = new URLSearchParams();
+      if (filters.site) params.append('site', filters.site);
+      if (filters.source) params.append('source', filters.source);
+      if (filters.stage) params.append('stage', filters.stage);
+
+      const query = params.toString();
+      const response = await axios.get(`/lead/sample-excel${query ? `?${query}` : ''}`, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -276,6 +282,7 @@ export const downloadSampleExcel = createAsyncThunk(
     }
   }
 );
+
 
 export const importLeads = createAsyncThunk(
   'lead/importLeads',

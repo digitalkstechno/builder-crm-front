@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 interface ImportResult {
   imported: number;
   failedCount: number;
-  failedExcel: string | null; // base64
+  failedExcel: string | null;
 }
 
 interface LeadImportModalProps {
@@ -27,6 +27,7 @@ export default function LeadImportModal({ isOpen, onClose }: LeadImportModalProp
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [importing, setImporting] = useState(false);
   const [downloading, setDownloading] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleClose = () => {
@@ -50,7 +51,7 @@ export default function LeadImportModal({ isOpen, onClose }: LeadImportModalProp
 
   const handleDownloadSample = async () => {
     setDownloading(true);
-    await dispatch(downloadSampleExcel());
+    await dispatch(downloadSampleExcel({}));
     setDownloading(false);
   };
 
@@ -114,14 +115,16 @@ export default function LeadImportModal({ isOpen, onClose }: LeadImportModalProp
             </div>
 
             <div className="p-6 space-y-5">
-              {/* Step 1 - Download Sample */}
+              {/* Step 1 – Download Template */}
               <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-indigo-900">Step 1: Download Sample File</p>
-                    <p className="text-xs text-indigo-600 mt-0.5">
-                      Site, Source & Stage columns have in-cell dropdowns with your actual data.
-                    </p>
+                    <p className="text-sm font-semibold text-indigo-900">Step 1: Download Template</p>
+                    {/* <p className="text-xs text-indigo-600 mt-0.5">
+                      The template has your actual <span className="font-semibold">Sites</span>,{' '}
+                      <span className="font-semibold">Sources</span> &amp;{' '}
+                      <span className="font-semibold">Stages</span> as in-cell dropdowns — directly from your CRM data.
+                    </p> */}
                   </div>
                   <button
                     onClick={handleDownloadSample}
@@ -129,12 +132,12 @@ export default function LeadImportModal({ isOpen, onClose }: LeadImportModalProp
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-xs font-semibold rounded-lg transition-colors shrink-0"
                   >
                     <Download size={13} />
-                    {downloading ? 'Downloading...' : 'Download'}
+                    {downloading ? 'Downloading...' : 'Download Template'}
                   </button>
                 </div>
               </div>
 
-              {/* Step 2 - Upload File */}
+              {/* Step 2 – Upload */}
               <div>
                 <p className="text-sm font-semibold text-slate-700 mb-2">Step 2: Upload Filled Excel</p>
                 <div
@@ -169,7 +172,7 @@ export default function LeadImportModal({ isOpen, onClose }: LeadImportModalProp
                   ) : (
                     <div className="space-y-1">
                       <CloudUpload size={28} className="mx-auto text-slate-300" />
-                      <p className="text-sm text-slate-500">Drag & drop or <span className="text-indigo-600 font-semibold">browse</span></p>
+                      <p className="text-sm text-slate-500">Drag &amp; drop or <span className="text-indigo-600 font-semibold">browse</span></p>
                       <p className="text-xs text-slate-400">.xlsx or .xls files only</p>
                     </div>
                   )}
@@ -179,7 +182,6 @@ export default function LeadImportModal({ isOpen, onClose }: LeadImportModalProp
               {/* Import Result */}
               {importResult && (
                 <div className="space-y-3">
-                  {/* Success count */}
                   {importResult.imported > 0 && (
                     <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
                       <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
@@ -189,7 +191,6 @@ export default function LeadImportModal({ isOpen, onClose }: LeadImportModalProp
                     </div>
                   )}
 
-                  {/* Failed rows */}
                   {importResult.failedCount > 0 && (
                     <div className="bg-rose-50 border border-rose-100 rounded-xl px-4 py-3">
                       <div className="flex items-center justify-between gap-3">
