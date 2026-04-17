@@ -34,7 +34,16 @@ export default function Topbar() {
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
     }
+  }, [dispatch]);
 
+  useEffect(() => {
+    if (user?._id) {
+      const socket = getSocket();
+      socket.emit("join", user._id);
+    }
+  }, [user]);
+
+  useEffect(() => {
     const socket = getSocket();
     
     const handleNewNotification = (data: any) => {
@@ -54,11 +63,45 @@ export default function Topbar() {
     socket.on('newLeadAssigned', handleNewNotification);
     socket.on('leadReassigned', handleNewNotification);
     socket.on('admin_notification', handleNewNotification);
+    
+    socket.on('reminder_alert', (data: any) => {
+      const reminderId = data.notification?._id || data.leadId;
+      
+      // Add to Redux state
+      if (data.notification) {
+        dispatch(addNotification(data.notification));
+      }
+
+      // Show single stylized toast with a unique ID to prevent duplicates
+      toast(data.message, {
+        id: `reminder-${reminderId}`,
+        icon: '⏰',
+        duration: 8000,
+        style: {
+          borderRadius: '12px',
+          background: '#1e293b',
+          color: '#fff',
+          border: '1px solid #334155',
+          fontSize: '13px',
+          fontWeight: 'bold',
+        },
+      });
+
+      // Browser notification
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("Followup Alert", {
+          tag: `reminder-${reminderId}`, // Prevent duplicate OS notifications
+          body: data.message,
+          icon: '/favicon.ico'
+        });
+      }
+    });
 
     return () => {
       socket.off('newLeadAssigned', handleNewNotification);
       socket.off('leadReassigned', handleNewNotification);
       socket.off('admin_notification', handleNewNotification);
+      socket.off('reminder_alert');
     };
   }, [dispatch]);
 

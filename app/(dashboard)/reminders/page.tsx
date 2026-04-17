@@ -166,16 +166,16 @@ export default function RemindersPage() {
       className: 'w-12',
       render: (reminder: any) => (
         <button
-          onClick={() => !reminder.isSent && handleMarkCompleted(reminder)}
-          disabled={reminder.isSent}
+          onClick={() => !reminder.isCompleted && handleMarkCompleted(reminder)}
+          disabled={reminder.isCompleted}
           className={cn(
             "w-5 h-5 rounded border flex items-center justify-center transition-colors",
-            reminder.isSent
+            reminder.isCompleted
               ? "bg-emerald-500 border-emerald-500 text-white cursor-not-allowed"
               : "border-slate-300 hover:border-emerald-400 hover:bg-emerald-50 text-transparent hover:text-emerald-500 cursor-pointer"
           )}
         >
-           <Check size={12} className={reminder.isSent ? "text-white" : "text-slate-300"} />
+           <Check size={12} className={reminder.isCompleted ? "text-white" : "text-slate-300"} />
         </button>
       )
     },
@@ -231,9 +231,9 @@ export default function RemindersPage() {
       render: (reminder: any) => (
         <span className={cn(
           "text-xs font-medium px-2 py-0.5 rounded-full",
-          reminder.isSent ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+          reminder.isCompleted ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
         )}>
-          {reminder.isSent ? 'Completed' : 'Pending'}
+          {reminder.isCompleted ? 'Completed' : 'Pending'}
         </span>
       )
     }

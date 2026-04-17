@@ -41,6 +41,8 @@ export default function LeadModal({
   });
 
   useEffect(() => {
+    if (!isOpen) return;
+
     if (initialData) {
       setFormData({
         name: initialData.name || '',
@@ -64,7 +66,7 @@ export default function LeadModal({
         notes: ''
       });
     }
-  }, [initialData, isOpen, leadStatuses]);
+  }, [initialData, isOpen]);
 
   // Fetch team members when site changes and auto-select team leader
   useEffect(() => {

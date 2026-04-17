@@ -44,6 +44,7 @@ import FollowupModal from '@/components/modals/FollowupModal';
 import ViewFollowupsModal from '@/components/modals/ViewFollowupsModal';
 import CommonTable from '@/components/ui/CommonTable';
 import LeadImportModal from '@/components/modals/LeadImportModal';
+import KanbanColumn from '@/components/leads/KanbanColumn';
 
 // Define Lead interface for TypeScript
 interface Lead {
@@ -749,48 +750,22 @@ export default function LeadsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="flex gap-6 overflow-x-auto pb-8 min-h-[calc(100vh-250px)]"
+            className="flex gap-6 overflow-x-auto pb-4 min-h-[calc(100vh-250px)]"
           >
-             {leadStatuses.map((stage: any) => (
-               <div
-                 key={stage._id}
-                 onDragOver={handleDragOver}
-                 onDrop={(e) => handleDrop(e, stage.name)}
-                 className="min-w-[300px] max-w-[300px] flex flex-col gap-4"
-               >
-                 <div className="flex items-center justify-between px-3">
-                   <div className="flex items-center gap-2">
-                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: stage.color || '#cbd5e1' }} />
-                     <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">{stage.name}</h3>
-                     <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
-                       {leads.filter(l => l.stageId === stage._id).length}
-                     </span>
-                   </div>
-                    <button
-                      onClick={() => handleOpenModalWithStatus(stage.name)}
-                      className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors"
-                    >
-                      <Plus size={16} />
-                    </button>
-                 </div>
-                 <div className="flex-1 space-y-4 p-3 bg-slate-50 rounded-[2rem] border border-slate-100/50 min-h-[500px]">
-                   {leads.filter(l => l.stageId === stage._id).map(lead => (
-                     <KanbanCard
-                       key={lead._id}
-                       lead={lead}
-                       onDragStart={handleDragStart}
-                       onEdit={handleOpenModal}
-                       onDelete={handleDelete}
-                     />
-                   ))}
-                   {leads.filter(l => l.stageId === stage._id).length === 0 && (
-                     <div className="h-32 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center">
-                       <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">No leads</p>
-                     </div>
-                   )}
-                   </div>
-                 </div>
-               ))}
+            {leadStatuses.map((stage: any) => (
+              <KanbanColumn
+                key={stage._id}
+                stage={stage}
+                filters={filters}
+                activeTab={activeTab}
+                onEdit={handleOpenModal}
+                onDelete={handleDelete}
+                onDragStart={handleDragStart}
+                onAddLead={handleOpenModalWithStatus}
+                onAddFollowup={handleOpenFollowupModal}
+                onViewFollowups={handleOpenViewFollowupsModal}
+              />
+            ))}
           </motion.div>
         )}
       </AnimatePresence>
