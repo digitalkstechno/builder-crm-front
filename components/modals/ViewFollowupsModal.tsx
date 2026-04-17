@@ -3,6 +3,7 @@ import { X, Calendar, CheckCircle, Clock, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
+import { formatDate } from '@/lib/utils';
 
 interface ViewFollowupsModalProps {
   isOpen: boolean;
@@ -70,7 +71,7 @@ export default function ViewFollowupsModal({ isOpen, onClose, lead }: ViewFollow
                             <Clock className="text-amber-500" size={18} />
                           )}
                           <span className="font-semibold text-slate-900">
-                            {followup.followupDate}
+                            {formatDate(followup.followupDate)}
                           </span>
                         </div>
                         <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
@@ -93,7 +94,7 @@ export default function ViewFollowupsModal({ isOpen, onClose, lead }: ViewFollow
                           <User size={14} />
                           <span>Created by {followup.createdBy}</span>
                         </div>
-                        <span>{followup.createdAt}</span>
+                        <span>{formatDate(followup.createdAt)}</span>
                       </div>
                     </div>
                   ))}

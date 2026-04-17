@@ -20,10 +20,11 @@ import {
   MapPin,
   ChevronDown,
   MessageSquare,
-  Eye
+  Eye,
+  Upload
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '@/lib/utils';
+import { cn, formatDate } from '@/lib/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
 import {
@@ -35,12 +36,14 @@ import {
   updateLead,
   deleteLead,
   createFollowup,
-  fetchLeadFollowups
+  fetchLeadFollowups,
+  exportLeads
 } from '@/redux/slices/leadSlice';
 import LeadModal from '@/components/modals/LeadModal';
 import FollowupModal from '@/components/modals/FollowupModal';
 import ViewFollowupsModal from '@/components/modals/ViewFollowupsModal';
 import CommonTable from '@/components/ui/CommonTable';
+import LeadImportModal from '@/components/modals/LeadImportModal';
 
 // Define Lead interface for TypeScript
 interface Lead {
@@ -78,6 +81,10 @@ export default function LeadsPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const currentLimit = 10;
+
+  // Import/Export state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   // Followup related state
   const [isFollowupModalOpen, setIsFollowupModalOpen] = useState(false);
@@ -147,7 +154,7 @@ export default function LeadsPage() {
             <div className="font-semibold text-slate-900 text-sm">{lead.name}</div>
             <div className="flex items-center gap-1 text-xs text-slate-400 mt-0.5">
               <Calendar size={11} />
-              {lead.createdAt}
+              {formatDate(lead.createdAt)}
             </div>
           </div>
         </div>
@@ -392,6 +399,17 @@ export default function LeadsPage() {
     setIsAddModalOpen(true);
   };
 
+  const handleExport = async () => {
+    setExporting(true);
+    await dispatch(exportLeads({
+      search: debouncedSearch,
+      status: filters.status,
+      source: filters.source,
+      agent: filters.agent,
+    }));
+    setExporting(false);
+  };
+
   const handleOpenModalWithStatus = (statusName: string) => {
     // Find the status object by name
     const statusObj = leadStatuses.find((s: any) => s.name === statusName);
@@ -522,7 +540,7 @@ export default function LeadsPage() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl w-fit">
             <button className="px-6 py-2 bg-white text-slate-900 shadow-sm rounded-xl text-sm font-bold transition-all">All Leads</button>
-            <button className="px-6 py-2 text-slate-500 hover:text-slate-900 rounded-xl text-sm font-bold transition-all">My Leads</button>
+            {/* <button className="px-6 py-2 text-slate-500 hover:text-slate-900 rounded-xl text-sm font-bold transition-all">My Leads</button> */}
             {/* <button className="px-6 py-2 text-slate-500 hover:text-slate-900 rounded-xl text-sm font-bold transition-all">Unassigned</button> */}
           </div>
 
@@ -645,6 +663,21 @@ export default function LeadsPage() {
             )}
           </div>
           <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm disabled:opacity-60"
+          >
+            <Download size={16} />
+            {exporting ? 'Exporting...' : 'Export'}
+          </button>
+          <button
+            onClick={() => setIsImportModalOpen(true)}
+            className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm"
+          >
+            <Upload size={16} />
+            Import
+          </button>
+          <button
             onClick={() => setIsAddModalOpen(true)}
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-200"
           >
@@ -763,6 +796,12 @@ export default function LeadsPage() {
           setSelectedLeadForView(null);
         }}
         lead={selectedLeadForView}
+      />
+
+      {/* Import Leads Modal */}
+      <LeadImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
       />
     </div>
   );

@@ -10,6 +10,7 @@ import { fetchReminders, markReminderCompleted, createFollowup, fetchLeadStatuse
 import CommonTable from '@/components/ui/CommonTable';
 import CompleteReminderModal from '@/components/modals/CompleteReminderModal';
 import Swal from 'sweetalert2';
+import { formatDate } from '@/lib/utils';
 
 export default function RemindersPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -201,7 +202,7 @@ export default function RemindersPage() {
       key: 'followupDate',
       render: (reminder: any) => (
         <span className="text-sm text-slate-500 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded">
-           {reminder.followupDate}
+           {formatDate(reminder.followupDate)}
         </span>
       )
     },

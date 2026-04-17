@@ -231,6 +231,68 @@ export const deleteFollowup = createAsyncThunk(
   }
 );
 
+export const exportLeads = createAsyncThunk(
+  'lead/exportLeads',
+  async (filters: { search?: string; status?: string; source?: string; agent?: string } = {}, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams();
+      if (filters.search) params.append('search', filters.search);
+      if (filters.status && filters.status !== 'all') params.append('status', filters.status);
+      if (filters.source && filters.source !== 'all') params.append('source', filters.source);
+      if (filters.agent && filters.agent !== 'all') params.append('agent', filters.agent);
+
+      const response = await axios.get(`/lead/export-excel?${params.toString()}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'leads_export.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      return true;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to export leads');
+    }
+  }
+);
+
+export const downloadSampleExcel = createAsyncThunk(
+  'lead/downloadSampleExcel',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get('/lead/sample-excel', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'lead_import_sample.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      return true;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to download sample');
+    }
+  }
+);
+
+export const importLeads = createAsyncThunk(
+  'lead/importLeads',
+  async (file: File, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await axios.post('/lead/import-excel', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to import leads');
+    }
+  }
+);
+
 // Reminder actions
 export const fetchReminders = createAsyncThunk(
   'lead/fetchReminders',
