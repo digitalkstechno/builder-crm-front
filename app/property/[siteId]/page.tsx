@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { MapPin, IndianRupee, Tag, Home, Building2, ChevronLeft, ChevronRight, X, ZoomIn, ArrowLeft, Video, FileText, CheckCircle2, Share2, Download, Info } from 'lucide-react';
+import { MapPin, IndianRupee, Tag, Home, Building2, ChevronLeft, ChevronRight, X, ZoomIn, ArrowLeft, Video, FileText, CheckCircle2, Share2, Download, Info, Facebook, Instagram, Linkedin, Twitter, Youtube } from 'lucide-react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'motion/react';
+import { toast, Toaster } from 'react-hot-toast';
 
 export default function PropertyViewPage() {
   const { siteId } = useParams();
@@ -83,6 +84,7 @@ export default function PropertyViewPage() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
+      <Toaster position="top-center" />
 
       {/* Hero Section */}
       <div className="relative w-full h-[65vh] bg-slate-900 overflow-hidden">
@@ -149,12 +151,12 @@ export default function PropertyViewPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3">
             {site.brochureUrl && (
-              <a 
-                href={site.brochureUrl.startsWith('http') ? site.brochureUrl : `${imageUrl}${site.brochureUrl}`} 
-                target="_blank" 
+              <a
+                href={site.brochureUrl.startsWith('http') ? site.brochureUrl : `${imageUrl}${site.brochureUrl}`}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl text-sm font-black transition-all shadow-lg shadow-indigo-200 active:scale-95"
               >
@@ -167,7 +169,7 @@ export default function PropertyViewPage() {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2 space-y-8">
             {/* Description */}
             {site.description && (
@@ -195,10 +197,10 @@ export default function PropertyViewPage() {
                   <h2 className="text-sm font-black text-slate-800 uppercase tracking-widest">Cinematic Tour</h2>
                 </div>
                 <div className="aspect-video rounded-2xl overflow-hidden border border-slate-100 shadow-inner">
-                  <iframe 
-                    src={embedUrl} 
-                    className="w-full h-full" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  <iframe
+                    src={embedUrl}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   />
                 </div>
@@ -207,8 +209,8 @@ export default function PropertyViewPage() {
 
             {/* Details Grid */}
             <div className="grid sm:grid-cols-2 gap-4">
-               {/* Location / Address */}
-               <section className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+              {/* Location / Address */}
+              <section className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center">
                     <MapPin size={16} className="text-amber-500" />
@@ -216,9 +218,12 @@ export default function PropertyViewPage() {
                   <h2 className="text-sm font-black text-slate-800 uppercase tracking-widest">Site Location</h2>
                 </div>
                 <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                   {site.address || `${site.area}, ${site.city}`}
+                  {site.address || `${site.area}, ${site.city}`}
                 </p>
-                <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 bg-indigo-50/50 w-fit px-3 py-1.5 rounded-lg border border-indigo-100/50 cursor-pointer hover:bg-indigo-100/50 transition-all">
+                <div 
+                   onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${site.address || ''} ${site.area} ${site.city}`)}`, '_blank')}
+                   className="flex items-center gap-2 text-xs font-bold text-indigo-600 bg-indigo-50/50 w-fit px-3 py-1.5 rounded-lg border border-indigo-100/50 cursor-pointer hover:bg-indigo-100/50 transition-all"
+                >
                    <ZoomIn size={12} /> View on Google Maps
                 </div>
               </section>
@@ -270,7 +275,7 @@ export default function PropertyViewPage() {
                       />
                       <div className="absolute inset-0 bg-indigo-900/0 group-hover:bg-indigo-900/20 transition-all duration-300 flex items-center justify-center">
                         <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all">
-                           <ZoomIn size={16} className="text-white" />
+                          <ZoomIn size={16} className="text-white" />
                         </div>
                       </div>
                     </motion.div>
@@ -280,7 +285,74 @@ export default function PropertyViewPage() {
             )}
           </div>
 
-          <aside className="space-y-8">
+          <aside className="space-y-8 lg:sticky lg:top-12">
+            {/* Inquiry Form */}
+            <section className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-slate-100 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110" />
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                    <CheckCircle2 size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-black text-slate-800 uppercase tracking-widest leading-none mb-1">Express Interest</h2>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Get a callback from our team</p>
+                  </div>
+                </div>
+
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  const target = e.target as any;
+                  const data = {
+                    name: target.name.value,
+                    phone: target.phone.value,
+                    message: target.message.value,
+                    siteId: site._id,
+                    builderId: site.builderId._id
+                  };
+                  
+                  try {
+                    const btn = target.querySelector('button');
+                    btn.disabled = true;
+                    btn.innerText = 'Sending...';
+                    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/public/inquiry`, data);
+                    toast.success('Thank you! Our representative will contact you shortly.', {
+                      duration: 5000,
+                      icon: '✅',
+                      style: {
+                        borderRadius: '16px',
+                        background: '#1e293b',
+                        color: '#fff',
+                        fontSize: '14px',
+                        padding: '16px 24px',
+                      },
+                    });
+                    target.reset();
+                  } catch (err) {
+                    toast.error('Something went wrong. Please try again.');
+                  } finally {
+                    target.querySelector('button').disabled = false;
+                    target.querySelector('button').innerText = 'Request Callback';
+                  }
+                }} className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Your Name</label>
+                    <input required name="name" type="text" placeholder="John Doe" className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:bg-white focus:border-indigo-400 transition-all" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile Number</label>
+                    <input required name="phone" type="tel" placeholder="+91 XXXXX XXXXX" className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:bg-white focus:border-indigo-400 transition-all" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Message (Optional)</label>
+                    <textarea name="message" rows={3} placeholder="I'm interested in this project..." className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:bg-white focus:border-indigo-400 transition-all resize-none"></textarea>
+                  </div>
+                  <button type="submit" className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-100 active:scale-95 disabled:opacity-70">
+                    Request Callback
+                  </button>
+                </form>
+              </div>
+            </section>
             {/* Amenities Section */}
             {(site.amenities || []).length > 0 && (
               <section className="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-900/20 text-white">
@@ -300,27 +372,59 @@ export default function PropertyViewPage() {
 
             {/* Builder Profile */}
             <section className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
-               <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Developer Details</h2>
-               <div className="flex items-center gap-4 mb-6">
-                 <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center border border-indigo-100 shadow-inner">
-                   <Building2 size={32} className="text-indigo-600" />
-                 </div>
-                 <div>
-                   <h3 className="font-black text-slate-900 leading-tight mb-1">{site.builderId?.companyName || 'Premium Builder'}</h3>
-                   <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Project Developer</p>
-                 </div>
-               </div>
-               <button className="w-full py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-200">
+              <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Developer Details</h2>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center border border-indigo-100 shadow-inner">
+                  <Building2 size={32} className="text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="font-black text-slate-900 leading-tight mb-1">{site.builderId?.companyName || 'Premium Builder'}</h3>
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Project Developer</p>
+                </div>
+              </div>
+              <button className="w-full py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-200">
                   Contact Developer
-               </button>
+              </button>
             </section>
           </aside>
         </div>
 
         {/* Footer */}
-        <div className="pt-12 border-t border-slate-200/60 text-center">
+        <div className="pt-12 pb-12 border-t border-slate-200/60 text-center space-y-8">
+          
+          {/* Social Links */}
+          {site.builderId?.websiteDetails?.socialLinks && (
+            <div className="flex items-center justify-center gap-6">
+              {site.builderId.websiteDetails.socialLinks.facebook && (
+                <a href={site.builderId.websiteDetails.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all transform hover:-translate-y-1">
+                  <Facebook size={18} />
+                </a>
+              )}
+              {site.builderId.websiteDetails.socialLinks.instagram && (
+                <a href={site.builderId.websiteDetails.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all transform hover:-translate-y-1">
+                  <Instagram size={18} />
+                </a>
+              )}
+              {site.builderId.websiteDetails.socialLinks.linkedIn && (
+                <a href={site.builderId.websiteDetails.socialLinks.linkedIn} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all transform hover:-translate-y-1">
+                  <Linkedin size={18} />
+                </a>
+              )}
+              {site.builderId.websiteDetails.socialLinks.twitter && (
+                <a href={site.builderId.websiteDetails.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all transform hover:-translate-y-1">
+                  <Twitter size={18} />
+                </a>
+              )}
+              {site.builderId.websiteDetails.socialLinks.youtube && (
+                <a href={site.builderId.websiteDetails.socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all transform hover:-translate-y-1">
+                  <Youtube size={18} />
+                </a>
+              )}
+            </div>
+          )}
+
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
-            &copy; 2026 {site.builderId?.companyName} &bull; Powered by Antigravity CRM
+            &copy; 2026 {site.builderId?.companyName} &bull; All Rights Reserved
           </p>
         </div>
       </div>
@@ -334,16 +438,16 @@ export default function PropertyViewPage() {
           <button className="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center transition-all" onClick={closeLightbox}>
             <X size={24} className="text-white" />
           </button>
-          
+
           <div className="max-w-6xl max-h-[80vh] w-full px-12" onClick={e => e.stopPropagation()}>
-             <img src={allImages[lightbox.index]} alt="" className="w-full h-full object-contain rounded-2xl shadow-2xl" />
+            <img src={allImages[lightbox.index]} alt="" className="w-full h-full object-contain rounded-2xl shadow-2xl" />
           </div>
 
           <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-3 px-6">
-             {allImages.map((_, i) => (
-               <button key={i} onClick={e => { e.stopPropagation(); setLightbox(lb => ({ ...lb, index: i })); }}
-                 className={`w-2 h-2 rounded-full transition-all ${i === lightbox.index ? 'bg-indigo-500 w-8' : 'bg-white/20 hover:bg-white/40'}`} />
-             ))}
+            {allImages.map((_, i) => (
+              <button key={i} onClick={e => { e.stopPropagation(); setLightbox(lb => ({ ...lb, index: i })); }}
+                className={`w-2 h-2 rounded-full transition-all ${i === lightbox.index ? 'bg-indigo-500 w-8' : 'bg-white/20 hover:bg-white/40'}`} />
+            ))}
           </div>
         </div>
       )}

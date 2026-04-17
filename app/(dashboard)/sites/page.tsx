@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Building2, Plus, Search, MapPin, MoreVertical, Edit3, Trash2, Eye, LayoutGrid, IndianRupee, Info, Smartphone, User, GitMerge } from 'lucide-react';
+import { Building2, Plus, Search, MapPin, MoreVertical, Edit3, Trash2, Eye, LayoutGrid, IndianRupee, Info, Smartphone, User, GitMerge, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { getSocket } from '@/lib/socket';
@@ -21,6 +21,8 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { toast } from 'react-hot-toast';
 
+
+
 const emptyForm = {
   name: '',
   city: '',
@@ -35,6 +37,9 @@ const emptyForm = {
   status: 'Planning',
   images: [] as any[],
   originalImages: [] as any[],
+  address: '',
+  amenities: [] as string[],
+  videoUrl: '',
   brochureUrl: '',
   brochureFile: null as File | null,
 };
@@ -49,13 +54,15 @@ export default function SitesPage() {
   const { propertyTypes } = useSelector((state: RootState) => state.propertyType);
   const { cities, areas } = useSelector((state: RootState) => state.cityArea);
   const { budgets } = useSelector((state: RootState) => state.budget);
+  const { user, builder } = useSelector((state: RootState) => state.auth);
 
-  const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedSite, setSelectedSite] = useState<any>(null);
-  const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState<any>(emptyForm);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [mounted, setMounted] = useState(false);
+  const [selectedSite, setSelectedSite] = useState<any>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -78,51 +85,55 @@ export default function SitesPage() {
     };
   }, [dispatch, searchTerm]);
 
-  const { builder } = useSelector((state: RootState) => state.auth);
   const siteLimit = builder?.currentLimits?.noOfSites || 0;
   const currentSiteCount = pagination.totalRecords;
   const isLimitReached = currentSiteCount >= siteLimit;
 
+  const handleEdit = (site: any) => {
+    setFormData({
+      ...site,
+      propertyTypes: (site.propertyTypes || []).map((pt: any) => typeof pt === 'object' ? pt._id : pt),
+      requirementTypes: (site.requirementTypes || []).map((rt: any) => typeof rt === 'object' ? rt._id : rt),
+      budgets: (site.budgets || []).map((b: any) => typeof b === 'object' ? b._id : b),
+      originalImages: [...(site.images || [])],
+      images: [...(site.images || [])],
+      brochureFile: null,
+    });
+    if (site.city) dispatch(fetchAreasByCity(site.city));
+    setIsModalOpen(true);
+  };
+
   const handleCityChange = (city: string) => {
     if (city.trim()) dispatch(fetchAreasByCity(city));
     else dispatch(clearAreas());
+    setFormData((prev: any) => ({ ...prev, city, area: '' }));
   };
 
   const handleAddCityArea = (city: string, area?: string) => {
     dispatch(addCityArea({ city, area }));
   };
 
-  const handleAddBudget = async (data: { label: string; minAmount: number; maxAmount: number }) => {
-    const result = await dispatch(createBudget(data)).unwrap();
-    return result;
+  const handleBudget = async (data: { label: string; minAmount: number; maxAmount: number }) => {
+    return await dispatch(createBudget(data)).unwrap();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       const formDataToSend = new FormData();
-
-      const skipKeys = new Set(['images', 'originalImages', '_id', 'requirementTypes', 'propertyTypes', 'budgets', 'brochureFile']);
+      const skipKeys = new Set(['images', 'originalImages', '_id', 'requirementTypes', 'propertyTypes', 'budgets', 'brochureFile', 'amenities', 'builderId']);
+      
       Object.keys(formData).forEach(key => {
         if (skipKeys.has(key)) return;
         formDataToSend.append(key, formData[key] ?? '');
       });
 
-      if (formData.brochureFile) {
-        formDataToSend.append('brochure', formData.brochureFile);
-      }
-
-      (formData.requirementTypes || []).forEach((id: string) => {
-        formDataToSend.append('requirementTypes', id);
-      });
-
-      (formData.propertyTypes || []).forEach((id: string) => {
-        formDataToSend.append('propertyTypes', id);
-      });
-
-      (formData.budgets || []).forEach((id: string) => {
-        formDataToSend.append('budgets', id);
-      });
+      if (formData.brochureFile) formDataToSend.append('brochure', formData.brochureFile);
+      (formData.requirementTypes || []).forEach((id: string) => formDataToSend.append('requirementTypes', id));
+      (formData.propertyTypes || []).forEach((id: string) => formDataToSend.append('propertyTypes', id));
+      (formData.budgets || []).forEach((id: string) => formDataToSend.append('budgets', id));
+      (formData.amenities || []).forEach((val: string) => formDataToSend.append('amenities', val));
 
       if (formData._id) {
         const currentImages = formData.images || [];
@@ -130,48 +141,20 @@ export default function SitesPage() {
         const newImages = currentImages.filter((img: any) => img.file);
         formDataToSend.append('keptImages', JSON.stringify(keptImages));
         newImages.forEach((img: any) => formDataToSend.append('images', img.file));
-      } else {
-        (formData.images || []).forEach((img: any) => {
-          if (img.file) formDataToSend.append('images', img.file);
-        });
-      }
-
-      if (formData._id) {
         await dispatch(updateSite({ id: formData._id, data: formDataToSend })).unwrap();
-        toast.success('Site updated successfully');
+        toast.success('Project updated successfully');
       } else {
-        if (isLimitReached) {
-          toast.error(`Site limit reached! You can only create ${siteLimit} sites.`);
-          return;
-        }
+        (formData.images || []).forEach((img: any) => { if (img.file) formDataToSend.append('images', img.file); });
         await dispatch(createSite(formDataToSend)).unwrap();
-        toast.success('Site created successfully');
+        toast.success('Project launched successfully');
       }
-
       setIsModalOpen(false);
       setFormData(emptyForm);
     } catch (error: any) {
-      toast.error(error || 'Failed to submit site');
+      toast.error(error || 'Failed to submit project');
+    } finally {
+      setIsSubmitting(false);
     }
-  };
-
-  const handleEdit = (site: any) => {
-    setFormData({
-      ...site,
-      propertyTypes: (site.propertyTypes || []).map((pt: any) =>
-        typeof pt === 'object' ? pt._id : pt
-      ),
-      requirementTypes: (site.requirementTypes || []).map((rt: any) =>
-        typeof rt === 'object' ? rt._id : rt
-      ),
-      budgets: (site.budgets || []).map((b: any) =>
-        typeof b === 'object' ? b._id : b
-      ),
-      originalImages: [...(site.images || [])],
-      images: [...(site.images || [])]
-    });
-    if (site.city) dispatch(fetchAreasByCity(site.city));
-    setIsModalOpen(true);
   };
 
   const handleView = (site: any) => {
@@ -334,6 +317,26 @@ export default function SitesPage() {
       render: (site: any) => (
         <div className="flex items-center justify-end gap-1">
           <button
+            onClick={() => {
+              const url = `${window.location.origin}/property/${site._id}`;
+              navigator.clipboard.writeText(url);
+              toast.success('Project link copied!');
+            }}
+            className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-all"
+            title="Copy Public Link"
+          >
+            <Share2 size={14} />
+          </button>
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`Check out our project: *${site.name}* 🏗️\n\n📍 Location: ${site.area}, ${site.city}\n\nView details, images, and brochures here:\n${window.location.origin}/property/${site._id}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-slate-50 rounded-lg transition-all"
+            title="Share on WhatsApp"
+          >
+            <Smartphone size={14} />
+          </a>
+          <button
             onClick={() => router.push(`/property/${site._id}`)}
             className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-all"
             title="View Public Page"
@@ -346,13 +349,13 @@ export default function SitesPage() {
           >
             <Edit3 size={14} />
           </button>
-           <button
-              onClick={() => handleDelete(site)}
-              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-50 rounded-lg transition-all"
-              title="Delete Site"
-            >
-              <Trash2 size={14} />
-            </button>
+          <button
+            onClick={() => handleDelete(site)}
+            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-50 rounded-lg transition-all"
+            title="Delete Site"
+          >
+            <Trash2 size={14} />
+          </button>
         </div>
       )
     }
@@ -445,6 +448,7 @@ export default function SitesPage() {
         formData={formData}
         setFormData={setFormData}
         onSubmit={handleSubmit}
+        isLoading={isSubmitting}
         mockWhatsAppNumbers={whatsappList.filter(w => w.isActive).map(w => ({
           id: w._id,
           name: `${w.name} (${w.number})`
@@ -458,7 +462,7 @@ export default function SitesPage() {
         areas={areas}
         onCityChange={handleCityChange}
         onAddCityArea={handleAddCityArea}
-        onAddBudget={handleAddBudget}
+        onAddBudget={handleBudget}
       />
 
       <AnimatePresence>

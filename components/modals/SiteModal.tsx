@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import CommonDialog from '@/components/ui/CommonDialog';
-import { Building2, MapPin, IndianRupee, Smartphone, GitMerge, UploadCloud, Trash2, Tag, Plus, X, Check, Video, FileText, Info } from 'lucide-react';
+import { Building2, MapPin, IndianRupee, Smartphone, GitMerge, UploadCloud, Trash2, Tag, Plus, X, Check, Video, FileText } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { motion } from "framer-motion";
 import 'react-quill-new/dist/quill.snow.css';
@@ -27,6 +27,7 @@ interface SiteModalProps {
   onCityChange?: (city: string) => void;
   onAddCityArea?: (city: string, area?: string) => void;
   onAddBudget?: (data: { label: string; minAmount: number; maxAmount: number }) => Promise<any>;
+  isLoading?: boolean;
 }
 
 function AutocompleteInput({
@@ -92,6 +93,7 @@ export default function SiteModal({
   isOpen, onClose, formData, setFormData, onSubmit,
   mockWhatsAppNumbers, mockStaff, mockTeams = [], requirementTypes = [], propertyTypes = [],
   budgets = [], cities = [], areas = [], onCityChange, onAddCityArea, onAddBudget,
+  isLoading = false
 }: SiteModalProps) {
 
   const [showBudgetForm, setShowBudgetForm] = useState(false);
