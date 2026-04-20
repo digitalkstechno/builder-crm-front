@@ -106,12 +106,37 @@ export default function SiteModal({
     setFormData({ ...formData, [field]: updated });
   };
 
+  const MAX_IMAGES = 6;
+  const MAX_SIZE_MB = 4;
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      const newImages = Array.from(files).map(file => ({ file, preview: URL.createObjectURL(file) }));
-      setFormData({ ...formData, images: [...(formData.images || []), ...newImages] });
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const current: any[] = formData.images || [];
+    const remaining = MAX_IMAGES - current.length;
+
+    if (remaining <= 0) {
+      alert(`Maximum ${MAX_IMAGES} images allowed.`);
+      e.target.value = '';
+      return;
     }
+
+    const oversized = files.filter(f => f.size > MAX_SIZE_MB * 1024 * 1024);
+    if (oversized.length > 0) {
+      alert(`These files exceed ${MAX_SIZE_MB}MB limit: ${oversized.map(f => f.name).join(', ')}`);
+      e.target.value = '';
+      return;
+    }
+
+    const allowed = files.slice(0, remaining);
+    if (files.length > remaining) {
+      alert(`Only ${remaining} more image(s) can be added. Extra files were ignored.`);
+    }
+
+    const newImages = allowed.map(file => ({ file, preview: URL.createObjectURL(file) }));
+    setFormData({ ...formData, images: [...current, ...newImages] });
+    e.target.value = '';
   };
 
   const handleBrochureFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -230,7 +255,7 @@ export default function SiteModal({
             <div className="relative group">
               <Link size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
               <input
-                type="url"
+                type="text"
                 placeholder="https://maps.google.com/..."
                 value={formData.mapUrl || ''}
                 onChange={(e) => setFormData({ ...formData, mapUrl: e.target.value })}
@@ -513,7 +538,14 @@ export default function SiteModal({
           </div>
 
           <div className="col-span-2 space-y-2 mt-2">
-            <label className={labelCls}>Project Media</label>
+            <div className="flex items-center justify-between">
+              <label className={labelCls}>Project Media</label>
+              <span className={`text-xs font-semibold ${
+                (formData.images?.length || 0) >= MAX_IMAGES ? 'text-rose-500' : 'text-slate-400'
+              }`}>
+                {formData.images?.length || 0} / {MAX_IMAGES} images · max {MAX_SIZE_MB}MB each
+              </span>
+            </div>
             <div className="grid grid-cols-4 gap-3">
               <AnimatePresence>
                 {formData.images?.map((img: any, idx: number) => (
@@ -527,11 +559,14 @@ export default function SiteModal({
                   </motion.div>
                 ))}
               </AnimatePresence>
-              <label className="relative aspect-square rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:bg-indigo-50 hover:border-indigo-200 transition-all group">
-                <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageUpload} />
-                <UploadCloud size={20} className="text-slate-400 group-hover:text-indigo-500 mb-1" />
-                <span className="text-xs text-slate-400 group-hover:text-indigo-600">Upload</span>
-              </label>
+              {(formData.images?.length || 0) < MAX_IMAGES && (
+                <label className="relative aspect-square rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:bg-indigo-50 hover:border-indigo-200 transition-all group">
+                  <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  <UploadCloud size={20} className="text-slate-400 group-hover:text-indigo-500 mb-1" />
+                  <span className="text-xs text-slate-400 group-hover:text-indigo-600">Upload</span>
+                  <span className="text-[10px] text-slate-300 mt-0.5">{MAX_IMAGES - (formData.images?.length || 0)} left</span>
+                </label>
+              )}
             </div>
           </div>
         </div>

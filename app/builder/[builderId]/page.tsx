@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { MapPin, Building2, ArrowLeft, Home, Phone, Mail, Info, Facebook, Instagram, Linkedin, Twitter, Youtube, ExternalLink, Globe } from 'lucide-react';
+import { MapPin, Building2, ArrowLeft, Phone, Mail, Facebook, Instagram, Linkedin, Twitter, Youtube, ExternalLink, Globe, ChevronRight } from 'lucide-react';
 import axios from 'axios';
 import { motion } from 'motion/react';
 
@@ -17,10 +17,7 @@ export default function BuilderPublicPage() {
     if (!builderId) return;
     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/public/builders/${builderId}`)
       .then(res => setData(res.data.data))
-      .catch((err) => {
-        console.error(err);
-        setNotFound(true);
-      })
+      .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
   }, [builderId]);
 
@@ -29,304 +26,272 @@ export default function BuilderPublicPage() {
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
-        <span className="text-sm text-slate-400 font-medium">Architecting Portfolio...</span>
+        <div className="w-10 h-10 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin" />
+        <span className="text-sm text-slate-400">Loading portfolio...</span>
       </div>
     </div>
   );
 
-  if (notFound || !data || !data.builder) return (
+  if (notFound || !data?.builder) return (
     <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="text-center space-y-4 px-6">
-        <div className="w-20 h-20 rounded-3xl bg-slate-50 flex items-center justify-center mx-auto mb-4 border border-slate-100">
-          <Building2 size={32} className="text-slate-300" />
+      <div className="text-center px-6">
+        <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4 border border-slate-100">
+          <Building2 size={28} className="text-slate-300" />
         </div>
-        <div>
-           <h2 className="text-xl font-black text-slate-900">Portfolio Not Found</h2>
-           <p className="text-sm text-slate-500 mt-1 max-w-xs mx-auto text-balance">The developer profile you're looking for doesn't exist or has been relocated.</p>
-        </div>
-        <button onClick={() => router.push('/')} className="px-6 py-3 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-slate-200">
-           Back to Home
+        <h2 className="text-lg font-semibold text-slate-800">Portfolio not found</h2>
+        <p className="text-sm text-slate-400 mt-1 mb-6">This builder profile doesn't exist or has been removed.</p>
+        <button onClick={() => router.push('/')} className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-medium">
+          Back to Home
         </button>
       </div>
     </div>
   );
 
   const { builder, sites } = data;
-  const logoSrc = builder.websiteDetails?.logo 
+  const logoSrc = builder.websiteDetails?.logo
     ? (builder.websiteDetails.logo.startsWith('http') ? builder.websiteDetails.logo : `${imageUrl}${builder.websiteDetails.logo}`)
     : null;
-
   const heroSrc = builder.websiteDetails?.heroImage
     ? (builder.websiteDetails.heroImage.startsWith('http') ? builder.websiteDetails.heroImage : `${imageUrl}${builder.websiteDetails.heroImage}`)
-    : "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070";
+    : 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070';
+
+  const socials = [
+    { icon: Facebook, key: 'facebook', color: 'hover:bg-blue-600' },
+    { icon: Instagram, key: 'instagram', color: 'hover:bg-pink-600' },
+    { icon: Linkedin, key: 'linkedIn', color: 'hover:bg-blue-700' },
+    { icon: Twitter, key: 'twitter', color: 'hover:bg-sky-500' },
+    { icon: Youtube, key: 'youtube', color: 'hover:bg-red-600' },
+  ];
 
   return (
-    <div className="min-h-screen bg-white flex flex-col selection:bg-indigo-100 selection:text-indigo-900">
+    <div className="min-h-screen bg-white">
 
-      {/* Modern Header */}
-      <div className="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.back()}
-              className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-center transition-all active:scale-95 group"
-            >
-              <ArrowLeft size={18} className="text-slate-500 group-hover:-translate-x-0.5 transition-transform" />
+      {/* Navbar */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button onClick={() => router.back()} className="w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-center transition-colors">
+              <ArrowLeft size={16} className="text-slate-500" />
             </button>
-            <div className="h-8 w-px bg-slate-100 mx-2" />
-            <div className="flex items-center gap-3">
-              {logoSrc && (
-                 <img src={logoSrc} alt="" className="h-8 w-8 object-contain rounded-lg bg-white p-1 border border-slate-100 shadow-sm" />
-              )}
-              <div>
-                <h1 className="text-sm font-black text-slate-900 leading-tight uppercase tracking-tight">{builder.companyName}</h1>
-                <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-[0.2em] leading-none mt-0.5">Verified Profile</p>
-              </div>
+            <div className="flex items-center gap-2.5">
+              {logoSrc
+                ? <img src={logoSrc} alt="" className="h-8 w-8 object-contain rounded-lg border border-slate-100" />
+                : <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">{builder.companyName?.[0]}</div>
+              }
+              <span className="font-semibold text-slate-800 text-sm">{builder.companyName}</span>
             </div>
           </div>
+          <span className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-600 font-medium bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Verified Builder
+          </span>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
+        <img src={heroSrc} alt="Hero" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 max-w-6xl mx-auto px-6 pb-12">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <p className="text-indigo-300 text-sm font-medium mb-3">Builder Portfolio</p>
+            <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-4 max-w-3xl">
+              {builder.websiteDetails?.tagline || 'Redefining Urban Excellence'}
+            </h1>
+            <p className="text-slate-300 text-base max-w-xl leading-relaxed">
+              {builder.websiteDetails?.heroSubtitle || 'Premium real estate developments crafted for modern living.'}
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Stats Bar */}
+      <div className="bg-slate-900 text-white">
+        <div className="max-w-6xl mx-auto px-6 py-6 flex flex-wrap items-center gap-8">
+          <div className="text-center">
+            <p className="text-2xl font-bold">{sites.length}</p>
+            <p className="text-xs text-slate-400 mt-0.5">Active Projects</p>
+          </div>
+          <div className="w-px h-10 bg-slate-700 hidden sm:block" />
+          {builder.address && (
+            <div className="flex items-center gap-2 text-slate-300 text-sm">
+              <MapPin size={14} className="text-indigo-400 shrink-0" />
+              <span>{builder.address}</span>
+            </div>
+          )}
+          {builder.websiteDetails?.phone && (
+            <>
+              <div className="w-px h-10 bg-slate-700 hidden sm:block" />
+              <a href={`tel:${builder.websiteDetails.phone}`} className="flex items-center gap-2 text-slate-300 text-sm hover:text-white transition-colors">
+                <Phone size={14} className="text-emerald-400 shrink-0" />
+                {builder.websiteDetails.phone}
+              </a>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Dynamic Hero Section */}
-      <section className="relative py-24 overflow-hidden bg-white">
-         <div className="absolute top-0 right-0 w-1/4 h-full bg-indigo-600/5 blur-[120px] -z-1" />
-         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <div className="space-y-10">
-               <motion.span 
-                 initial={{ opacity: 0, x: -20 }} 
-                 animate={{ opacity: 1, x: 0 }}
-                 className="px-5 py-2 bg-indigo-50 text-indigo-700 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] inline-block border border-indigo-100"
-               >
-                 Builder Portfolio
-               </motion.span>
-               <motion.h2 
-                 initial={{ opacity: 0, y: 30 }} 
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: 0.1 }}
-                 className="text-5xl lg:text-7xl font-black text-slate-900 tracking-tighter leading-[0.95]"
-               >
-                 {builder.websiteDetails?.tagline || `Redefining Urban Excellence.`}
-               </motion.h2>
-               <motion.p 
-                 initial={{ opacity: 0, y: 30 }} 
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: 0.2 }}
-                 className="text-xl text-slate-500 font-medium leading-relaxed max-w-xl"
-               >
-                 {builder.websiteDetails?.heroSubtitle || `We specialize in high-concept architecture and sustainable developments that stand as landmarks of modern legacy.`}
-               </motion.p>
+      {/* About */}
+      {builder.websiteDetails?.about && (
+        <section className="max-w-6xl mx-auto px-6 py-16">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <p className="text-indigo-600 text-sm font-semibold mb-3">About Us</p>
+              <h2 className="text-3xl font-bold text-slate-900 mb-5 leading-tight">Who We Are</h2>
+              <p className="text-slate-500 leading-relaxed">{builder.websiteDetails.about}</p>
             </div>
-            
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, rotate: 2 }} 
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="relative aspect-square lg:aspect-[4/5] rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.2)] ring-16 ring-slate-50"
-            >
-               <img 
-                 src={heroSrc} 
-                 alt="Hero Banner" 
-                 className="w-full h-full object-cover"
-               />
-               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
-               <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between">
-                  <div className="flex -space-x-4">
-                     {[1,2,3,4].map(i => (
-                        <div key={i} className="w-12 h-12 rounded-full border-2 border-white bg-slate-200 overflow-hidden shadow-xl">
-                           <img src={`https://i.pravatar.cc/100?img=${i+14}`} alt="" />
-                        </div>
-                     ))}
-                  </div>
-                  <div className="text-right">
-                     <p className="text-[11px] font-black text-white uppercase tracking-widest opacity-80 mb-1">Established Units</p>
-                     <p className="text-3xl font-black text-white leading-none tracking-tighter">1,250+</p>
-                  </div>
-               </div>
-            </motion.div>
-         </div>
-      </section>
-
-      {/* Projects Feed */}
-      <div className="flex-1 max-w-6xl w-full mx-auto px-6 py-24 space-y-16">
-
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2">
-            <h2 className="text-4xl font-black text-slate-900 tracking-tighter">Our Core Portfolio</h2>
-            <div className="flex items-center gap-3">
-               <span className="h-1 w-12 bg-indigo-600 rounded-full" />
-               <p className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.3em]">Verified managed developments</p>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { label: 'Projects', value: sites.length + '+' },
+                { label: 'Years Active', value: new Date().getFullYear() - 2018 + '+' },
+                { label: 'Cities', value: [...new Set(sites.map((s: any) => s.city))].length + '+' },
+                { label: 'Happy Clients', value: '500+' },
+              ].map((stat) => (
+                <div key={stat.label} className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+                  <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
+                  <p className="text-sm text-slate-400 mt-1">{stat.label}</p>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-2xl border border-slate-100">
-            <span className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-slate-900 text-sm font-black shadow-sm">{sites.length}</span>
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest pr-4">Active Projects</span>
+        </section>
+      )}
+
+      {/* Projects */}
+      <section className="max-w-6xl mx-auto px-6 py-16 border-t border-slate-100">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <p className="text-indigo-600 text-sm font-semibold mb-2">Our Portfolio</p>
+            <h2 className="text-3xl font-bold text-slate-900">Featured Projects</h2>
           </div>
+          <span className="text-sm text-slate-400">{sites.length} project{sites.length !== 1 ? 's' : ''}</span>
         </div>
 
         {sites.length === 0 ? (
-          <div className="text-center py-24 bg-slate-50/50 rounded-[4rem] border border-slate-100 border-dashed">
-            <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center mx-auto mb-6 shadow-md border border-slate-50">
-              <Home size={32} className="text-slate-200" />
-            </div>
-            <h3 className="text-base font-black text-slate-900 uppercase tracking-widest">No Projects Found</h3>
-            <p className="text-xs text-slate-400 mt-2">New world-class developments will be announced soon.</p>
+          <div className="text-center py-20 bg-slate-50 rounded-3xl border border-slate-100 border-dashed">
+            <Building2 size={40} className="text-slate-200 mx-auto mb-4" />
+            <p className="text-slate-400 font-medium">No projects listed yet</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {sites.map((site: any) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sites.map((site: any, i: number) => {
               const mainImage = site.images?.[0] ? `${imageUrl}${site.images[0]}` : null;
               return (
                 <motion.div
                   key={site._id}
-                  whileHover={{ y: -15, scale: 1.02 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  whileHover={{ y: -4 }}
                   onClick={() => router.push(`/property/${site._id}?from=${builderId}`)}
-                  className="group relative bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden cursor-pointer transition-all duration-700 hover:shadow-[0_40px_80px_-20px_rgba(79,70,229,0.15)]"
+                  className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:shadow-slate-200/60 overflow-hidden cursor-pointer transition-all duration-300"
                 >
-                  {/* Visual Container */}
-                  <div className="relative w-full h-[360px] bg-slate-100 overflow-hidden">
-                    {mainImage ? (
-                      <img
-                        src={mainImage}
-                        alt={site.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.5s]"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-indigo-50 to-white flex items-center justify-center">
-                        <Building2 size={64} className="text-indigo-100" />
+                  <div className="relative h-52 bg-slate-100 overflow-hidden">
+                    {mainImage
+                      ? <img src={mainImage} alt={site.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      : <div className="w-full h-full bg-gradient-to-br from-indigo-50 to-slate-100 flex items-center justify-center"><Building2 size={40} className="text-indigo-200" /></div>
+                    }
+                    <div className="absolute top-3 left-3">
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${site.status === 'Active' ? 'bg-emerald-500 text-white' : 'bg-amber-400 text-amber-900'}`}>
+                        {site.status}
+                      </span>
+                    </div>
+                    {site.images?.length > 1 && (
+                      <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-lg font-medium">
+                        +{site.images.length - 1} photos
                       </div>
                     )}
-                    
-                    {/* Status Badge */}
-                    <div className="absolute top-8 right-8 z-10 transition-transform group-hover:scale-110 duration-500">
-                       <span className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl backdrop-blur-md border ${site.status === 'Active' ? 'bg-emerald-500/90 text-white border-emerald-400/20 shadow-emerald-500/20' : 'bg-amber-400/90 text-amber-950 border-amber-300/20 shadow-amber-500/20'}`}>
-                         {site.status}
-                       </span>
-                    </div>
-
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                   </div>
-
-                  {/* Body */}
-                  <div className="p-10">
-                    <div className="flex items-start justify-between gap-4 mb-6">
-                       <h3 className="text-2xl font-black text-slate-900 leading-none group-hover:text-indigo-600 transition-colors uppercase tracking-tighter">{site.name}</h3>
-                       <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 transition-all group-hover:bg-indigo-600 group-hover:text-white group-hover:rotate-12 shrink-0">
-                          <ExternalLink size={18} />
-                       </div>
+                  <div className="p-5">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-semibold text-slate-900 text-base leading-tight group-hover:text-indigo-600 transition-colors">{site.name}</h3>
+                      <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-500 shrink-0 mt-0.5 transition-colors" />
                     </div>
-                    <div className="flex items-center gap-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                      <MapPin size={14} className="text-indigo-500 flex-shrink-0" />
+                    <div className="flex items-center gap-1.5 mt-2 text-sm text-slate-400">
+                      <MapPin size={13} className="text-indigo-400 shrink-0" />
                       <span className="truncate">{site.area}, {site.city}</span>
                     </div>
+                    {site.budgets?.[0] && (
+                      <p className="mt-3 text-sm font-semibold text-slate-700">₹{site.budgets[0].label}</p>
+                    )}
                   </div>
                 </motion.div>
               );
             })}
           </div>
         )}
-      </div>
+      </section>
 
       {/* Footer */}
-      <footer className="bg-slate-950 text-white mt-12 border-t border-slate-800">
+      <footer className="bg-slate-900 text-white mt-8">
         <div className="max-w-6xl mx-auto px-6 py-14">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pb-10 border-b border-white/10">
             {/* Brand */}
-            <div className="space-y-5">
-              <div className="flex items-center gap-4">
-                {logoSrc ? (
-                  <img src={logoSrc} alt={builder.companyName} className="h-12 w-12 object-contain rounded-xl bg-white p-2 shadow-lg" />
-                ) : (
-                  <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center">
-                    <Building2 size={22} className="text-white" />
-                  </div>
-                )}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                {logoSrc
+                  ? <img src={logoSrc} alt="" className="h-10 w-10 object-contain rounded-xl bg-white p-1.5" />
+                  : <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center"><Building2 size={20} className="text-white" /></div>
+                }
                 <div>
-                  <h3 className="text-base font-black tracking-tight uppercase text-white leading-tight">{builder.companyName}</h3>
-                  <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mt-0.5">Verified Builder</p>
+                  <h3 className="font-semibold text-white">{builder.companyName}</h3>
+                  <p className="text-xs text-indigo-400">Verified Builder</p>
                 </div>
               </div>
               <p className="text-sm text-slate-400 leading-relaxed">
-                {builder.websiteDetails?.about || 'Delivering iconic landmarks and quality spaces that redefine modern living.'}
+                {builder.websiteDetails?.about?.substring(0, 120) || 'Delivering quality spaces that redefine modern living.'}
+                {builder.websiteDetails?.about?.length > 120 ? '...' : ''}
               </p>
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Official Portfolio</span>
-              </div>
             </div>
 
             {/* Contact */}
-            <div className="space-y-5">
-              <div>
-                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-500 mb-1">Contact</h4>
-                <div className="h-0.5 w-8 bg-indigo-600 rounded-full" />
-              </div>
-              <div className="space-y-4">
+            <div className="space-y-4">
+              <h4 className="text-sm font-semibold text-white">Contact</h4>
+              <div className="space-y-3">
                 {builder.address && (
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-2.5 text-sm text-slate-400">
                     <MapPin size={14} className="text-indigo-400 mt-0.5 shrink-0" />
-                    <p className="text-sm text-slate-300 leading-snug">{builder.address}</p>
+                    {builder.address}
                   </div>
                 )}
                 {builder.websiteDetails?.phone && (
-                  <a href={`tel:${builder.websiteDetails.phone}`} className="flex items-center gap-3 group">
-                    <Phone size={14} className="text-emerald-500 shrink-0" />
-                    <span className="text-sm font-semibold text-slate-300 group-hover:text-emerald-400 transition-colors">{builder.websiteDetails.phone}</span>
+                  <a href={`tel:${builder.websiteDetails.phone}`} className="flex items-center gap-2.5 text-sm text-slate-400 hover:text-white transition-colors">
+                    <Phone size={14} className="text-emerald-400 shrink-0" />
+                    {builder.websiteDetails.phone}
                   </a>
                 )}
                 {builder.websiteDetails?.email && (
-                  <a href={`mailto:${builder.websiteDetails.email}`} className="flex items-center gap-3 group">
+                  <a href={`mailto:${builder.websiteDetails.email}`} className="flex items-center gap-2.5 text-sm text-slate-400 hover:text-white transition-colors">
                     <Mail size={14} className="text-indigo-400 shrink-0" />
-                    <span className="text-sm font-semibold text-slate-300 group-hover:text-indigo-400 transition-colors truncate">{builder.websiteDetails.email}</span>
+                    {builder.websiteDetails.email}
                   </a>
                 )}
               </div>
             </div>
 
             {/* Social */}
-            <div className="space-y-5">
-              <div>
-                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-500 mb-1">Follow Us</h4>
-                <div className="h-0.5 w-8 bg-indigo-600 rounded-full" />
-              </div>
+            <div className="space-y-4">
+              <h4 className="text-sm font-semibold text-white">Follow Us</h4>
               {builder.websiteDetails?.socialLinks ? (
-                <div className="flex flex-wrap gap-3">
-                  {[
-                    { icon: Facebook, key: 'facebook' },
-                    { icon: Instagram, key: 'instagram' },
-                    { icon: Linkedin, key: 'linkedIn' },
-                    { icon: Twitter, key: 'twitter' },
-                    { icon: Youtube, key: 'youtube' },
-                  ].map((social) => (
-                    builder.websiteDetails.socialLinks[social.key] && (
-                      <a
-                        key={social.key}
-                        href={builder.websiteDetails.socialLinks[social.key]}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-10 h-10 bg-white/5 hover:bg-indigo-600 text-slate-400 hover:text-white rounded-xl flex items-center justify-center transition-all group"
-                      >
-                        <social.icon size={16} className="group-hover:scale-110 transition-transform" />
+                <div className="flex flex-wrap gap-2">
+                  {socials.map(({ icon: Icon, key, color }) =>
+                    builder.websiteDetails.socialLinks[key] ? (
+                      <a key={key} href={builder.websiteDetails.socialLinks[key]} target="_blank" rel="noopener noreferrer"
+                        className={`w-9 h-9 bg-white/10 ${color} text-slate-400 hover:text-white rounded-xl flex items-center justify-center transition-all`}>
+                        <Icon size={15} />
                       </a>
-                    )
-                  ))}
+                    ) : null
+                  )}
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Globe size={16} />
-                  <span className="text-xs font-bold uppercase tracking-widest">No socials linked</span>
-                </div>
+                <div className="flex items-center gap-2 text-slate-500 text-sm"><Globe size={14} /> No social links added</div>
               )}
             </div>
           </div>
 
-          {/* Bottom Bar */}
-          <div className="mt-10 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-              © {new Date().getFullYear()} {builder.companyName}. All rights reserved.
-            </p>
-            <p className="text-[10px] font-bold text-slate-700 uppercase tracking-widest">Powered by BuilderCRM</p>
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
+            <span>© {new Date().getFullYear()} {builder.companyName}. All rights reserved.</span>
+            <span>Powered by BuildFlow CRM</span>
           </div>
         </div>
       </footer>
