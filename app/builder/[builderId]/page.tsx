@@ -227,135 +227,106 @@ export default function BuilderPublicPage() {
         )}
       </div>
 
-      {/* Redesigned Premium Consolidated Footer */}
-      <footer className="bg-slate-950 text-white mt-12 pt-24 pb-12 px-6 md:px-12 border-t border-slate-900">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
+      {/* Footer */}
+      <footer className="bg-slate-950 text-white mt-12 border-t border-slate-800">
+        <div className="max-w-6xl mx-auto px-6 py-14">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-            {/* Block 1: Brand Identity */}
-            <div className="lg:col-span-5 space-y-10">
-              <div className="flex items-center gap-6">
+            {/* Brand */}
+            <div className="space-y-5">
+              <div className="flex items-center gap-4">
                 {logoSrc ? (
-                  <img src={logoSrc} alt={builder.companyName} className="h-20 w-20 object-contain rounded-[1.5rem] bg-white p-3 shadow-2xl ring-4 ring-white/5" />
+                  <img src={logoSrc} alt={builder.companyName} className="h-12 w-12 object-contain rounded-xl bg-white p-2 shadow-lg" />
                 ) : (
-                  <div className="w-20 h-20 bg-indigo-600 rounded-[1.5rem] flex items-center justify-center shadow-2xl shadow-indigo-600/30">
-                    <Building2 size={36} className="text-white" />
+                  <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center">
+                    <Building2 size={22} className="text-white" />
                   </div>
                 )}
                 <div>
-                  <h3 className="text-3xl font-black tracking-tighter uppercase leading-none">{builder.companyName}</h3>
-                  <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.4em] mt-3">Architectural Legacy</p>
+                  <h3 className="text-base font-black tracking-tight uppercase text-white leading-tight">{builder.companyName}</h3>
+                  <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mt-0.5">Verified Builder</p>
                 </div>
               </div>
-
-              <div className="space-y-6">
-                <p className="text-xl text-slate-300 leading-relaxed font-medium max-w-lg">
-                  {builder.websiteDetails?.about || `Dedicated to delivering iconic landmarks and high-quality dwelling spaces that redefine luxury and urban sustainability.`}
-                </p>
-                <div className="flex items-center gap-2">
-                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Official Direct Portfolio</span>
-                </div>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                {builder.websiteDetails?.about || 'Delivering iconic landmarks and quality spaces that redefine modern living.'}
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Official Portfolio</span>
               </div>
             </div>
 
-            {/* Block 2: Redesigned Connectivity Hub */}
-            <div className="lg:col-span-7">
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  
-                  {/* Vertical Contact Column */}
-                  <div className="space-y-12">
-                     <div className="space-y-2">
-                        <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-500">Connectivity Hub</h4>
-                        <div className="h-1 w-12 bg-indigo-600 rounded-full" />
-                     </div>
-
-                     <div className="space-y-8">
-                        {/* Address */}
-                        <div className="group space-y-3">
-                           <div className="flex items-center gap-3">
-                              <MapPin size={16} className="text-indigo-500" />
-                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Global Headquarters</span>
-                           </div>
-                           <p className="text-base font-bold text-slate-200 leading-snug pl-7 group-hover:text-white transition-colors">
-                              {builder.address || 'Principal Corporate Office Address'}
-                           </p>
-                        </div>
-
-                        {/* Phone */}
-                        {builder.websiteDetails?.phone && (
-                           <a href={`tel:${builder.websiteDetails.phone}`} className="group block space-y-3">
-                              <div className="flex items-center gap-3">
-                                 <Phone size={16} className="text-emerald-500" />
-                                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Direct Line</span>
-                              </div>
-                              <span className="text-lg font-black text-slate-200 pl-7 group-hover:text-emerald-400 transition-colors block">
-                                 {builder.websiteDetails.phone}
-                              </span>
-                           </a>
-                        )}
-
-                        {/* Email */}
-                        {builder.websiteDetails?.email && (
-                           <a href={`mailto:${builder.websiteDetails.email}`} className="group block space-y-3">
-                              <div className="flex items-center gap-3">
-                                 <Mail size={16} className="text-indigo-400" />
-                                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Support Core</span>
-                              </div>
-                              <span className="text-lg font-black text-slate-200 pl-7 group-hover:text-indigo-400 transition-colors block truncate">
-                                 {builder.websiteDetails.email}
-                              </span>
-                           </a>
-                        )}
-                     </div>
+            {/* Contact */}
+            <div className="space-y-5">
+              <div>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-500 mb-1">Contact</h4>
+                <div className="h-0.5 w-8 bg-indigo-600 rounded-full" />
+              </div>
+              <div className="space-y-4">
+                {builder.address && (
+                  <div className="flex items-start gap-3">
+                    <MapPin size={14} className="text-indigo-400 mt-0.5 shrink-0" />
+                    <p className="text-sm text-slate-300 leading-snug">{builder.address}</p>
                   </div>
+                )}
+                {builder.websiteDetails?.phone && (
+                  <a href={`tel:${builder.websiteDetails.phone}`} className="flex items-center gap-3 group">
+                    <Phone size={14} className="text-emerald-500 shrink-0" />
+                    <span className="text-sm font-semibold text-slate-300 group-hover:text-emerald-400 transition-colors">{builder.websiteDetails.phone}</span>
+                  </a>
+                )}
+                {builder.websiteDetails?.email && (
+                  <a href={`mailto:${builder.websiteDetails.email}`} className="flex items-center gap-3 group">
+                    <Mail size={14} className="text-indigo-400 shrink-0" />
+                    <span className="text-sm font-semibold text-slate-300 group-hover:text-indigo-400 transition-colors truncate">{builder.websiteDetails.email}</span>
+                  </a>
+                )}
+              </div>
+            </div>
 
-                  {/* Digital Presence Card */}
-                  <div className="bg-white/[0.03] border border-white/[0.05] rounded-[2.5rem] p-8 md:p-10 space-y-10">
-                     <div className="space-y-2">
-                        <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-500">Digital Presence</h4>
-                        <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest leading-none">Connect on socials</p>
-                     </div>
-
-                     {builder.websiteDetails?.socialLinks ? (
-                        <div className="flex flex-wrap items-center gap-4">
-                           {[
-                              { icon: Facebook, key: 'facebook' },
-                              { icon: Instagram, key: 'instagram' },
-                              { icon: Linkedin, key: 'linkedIn' },
-                              { icon: Twitter, key: 'twitter' },
-                              { icon: Youtube, key: 'youtube' },
-                           ].map((social) => (
-                              builder.websiteDetails.socialLinks[social.key] && (
-                                 <a 
-                                    key={social.key} 
-                                    href={builder.websiteDetails.socialLinks[social.key]} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
-                                    className="w-12 h-12 bg-white/5 hover:bg-white text-slate-500 hover:text-slate-900 rounded-2xl transition-all flex items-center justify-center group shadow-lg ring-1 ring-white/5"
-                                 >
-                                    <social.icon size={20} className="transition-transform group-hover:scale-110" />
-                                 </a>
-                              )
-                           ))}
-                        </div>
-                     ) : (
-                        <div className="text-center py-10">
-                           <Globe size={32} className="mx-auto text-slate-700 mb-3" />
-                           <p className="text-[10px] font-black text-slate-700 uppercase tracking-widest">No Links Connected</p>
-                        </div>
-                     )}
-                  </div>
-
-               </div>
+            {/* Social */}
+            <div className="space-y-5">
+              <div>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-500 mb-1">Follow Us</h4>
+                <div className="h-0.5 w-8 bg-indigo-600 rounded-full" />
+              </div>
+              {builder.websiteDetails?.socialLinks ? (
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { icon: Facebook, key: 'facebook' },
+                    { icon: Instagram, key: 'instagram' },
+                    { icon: Linkedin, key: 'linkedIn' },
+                    { icon: Twitter, key: 'twitter' },
+                    { icon: Youtube, key: 'youtube' },
+                  ].map((social) => (
+                    builder.websiteDetails.socialLinks[social.key] && (
+                      <a
+                        key={social.key}
+                        href={builder.websiteDetails.socialLinks[social.key]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-10 h-10 bg-white/5 hover:bg-indigo-600 text-slate-400 hover:text-white rounded-xl flex items-center justify-center transition-all group"
+                      >
+                        <social.icon size={16} className="group-hover:scale-110 transition-transform" />
+                      </a>
+                    )
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-slate-600">
+                  <Globe size={16} />
+                  <span className="text-xs font-bold uppercase tracking-widest">No socials linked</span>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Final Line */}
-          <div className="mt-12 pt-8 border-t border-white/5 text-center">
-             <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
-               © {new Date().getFullYear()} {builder.companyName}
-             </p>
+          {/* Bottom Bar */}
+          <div className="mt-10 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+              © {new Date().getFullYear()} {builder.companyName}. All rights reserved.
+            </p>
+            <p className="text-[10px] font-bold text-slate-700 uppercase tracking-widest">Powered by BuilderCRM</p>
           </div>
         </div>
       </footer>

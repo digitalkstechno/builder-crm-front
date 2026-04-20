@@ -412,11 +412,11 @@ export default function PropertyViewPage() {
         </div>
 
         {/* Footer */}
-        <div className="pt-12 pb-12 border-t border-slate-200/60 text-center space-y-8">
+        <div className="pt-6 pb-8 border-t border-slate-200/60 text-center space-y-4">
           
           {/* Social Links */}
           {site.builderId?.websiteDetails?.socialLinks && (
-            <div className="flex items-center justify-center gap-6">
+            <div className="flex items-center justify-center gap-3">
               {site.builderId.websiteDetails.socialLinks.facebook && (
                 <a href={site.builderId.websiteDetails.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all transform hover:-translate-y-1">
                   <Facebook size={18} />
