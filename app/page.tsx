@@ -276,30 +276,12 @@ export default function LandingPage() {
                 className="relative"
               >
                 <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-3xl blur-[100px] opacity-20 -z-10 scale-90" />
-                <div className="relative bg-white/40 backdrop-blur-sm p-4 rounded-[3rem] border border-white/50 shadow-2xl">
-                  <div className="aspect-[4/3] rounded-[2rem] bg-indigo-50 border border-indigo-100 overflow-hidden relative shadow-inner">
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/5 to-purple-600/5" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-indigo-200 animate-pulse">
-                        <LayoutDashboard size={120} strokeWidth={1} />
-                      </div>
-                    </div>
-                    <motion.div
-                      animate={{ y: [0, -10, 0] }}
-                      transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                      className="absolute top-10 right-10 bg-white p-4 rounded-2xl shadow-xl border border-slate-50"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white">
-                          <Users size={20} />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">New Leads</p>
-                          <p className="text-lg font-bold text-slate-900">+124</p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </div>
+                <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                  <img
+                    src="/WhatsApp-Automation-1.png"
+                    alt="WhatsApp Automation"
+                    className="w-full h-auto object-cover"
+                  />
                 </div>
               </motion.div>
             </div>
