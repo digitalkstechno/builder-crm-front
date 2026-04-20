@@ -171,10 +171,10 @@ export default function SubscriptionsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 border-b border-slate-100 pb-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-none mb-1">Billing & Subscription</h1>
-          <p className="text-xs text-slate-400 flex items-center gap-2">
+          {/* <p className="text-xs text-slate-400 flex items-center gap-2">
             <CreditCard size={12} className="text-indigo-500" />
             Manage your plan & billing
-          </p>
+          </p> */}
         </div>
         <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-100">
            {[

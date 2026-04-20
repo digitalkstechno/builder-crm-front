@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CommonDialog from '@/components/ui/CommonDialog';
-import { Users, Mail, Shield, Phone, Lock, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { Users, Mail, Phone, Lock, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface StaffModalProps {
@@ -23,7 +23,6 @@ export default function StaffModal({
     fullName: '',
     email: '',
     phone: '',
-    staffRole: 'Sales Manager',
     password: ''
   });
 
@@ -33,7 +32,6 @@ export default function StaffModal({
         fullName: initialData.userId.fullName,
         email: initialData.userId.email,
         phone: initialData.userId.phone,
-        staffRole: initialData.staffRole,
         password: ''
       });
     } else {
@@ -41,7 +39,6 @@ export default function StaffModal({
         fullName: '',
         email: '',
         phone: '',
-        staffRole: 'Sales Manager',
         password: ''
       });
     }
@@ -115,23 +112,6 @@ export default function StaffModal({
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-500 ml-1">Select Role</label>
-            <div className="relative group">
-              <Shield size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-indigo-500 transition-colors" />
-              <select 
-                name="staffRole"
-                value={formData.staffRole}
-                onChange={handleChange}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm appearance-none outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-400 transition-all cursor-pointer"
-              >
-                <option value="Sales Manager">Sales Manager</option>
-                <option value="Sales Executive">Sales Executive</option>
-                <option value="Relationship Manager">Relationship Manager</option>
-                <option value="Project Admin">Project Admin</option>
-              </select>
-            </div>
-          </div>
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-500 ml-1">Phone Number</label>
             <div className="relative group">

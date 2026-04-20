@@ -371,10 +371,10 @@ export default function SitesPage() {
         <div className="flex items-center gap-4">
           <div>
             <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-none mb-1">Project Portfolio</h1>
-            <p className="text-xs text-slate-400 flex items-center gap-2">
+            {/* <p className="text-xs text-slate-400 flex items-center gap-2">
               <LayoutGrid size={12} className="text-indigo-500" />
               Site & Inventory Management
-            </p>
+            </p> */}
           </div>
           
           <div className="h-8 w-px bg-slate-100 mx-2" />
