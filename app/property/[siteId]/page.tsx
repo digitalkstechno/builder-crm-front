@@ -154,6 +154,7 @@ export default function PropertyViewPage() {
   const [site, setSite] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [subscriptionExpired, setSubscriptionExpired] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -161,7 +162,13 @@ export default function PropertyViewPage() {
     if (!siteId) return;
     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/public/sites/${siteId}`)
       .then(res => setSite(res.data.data))
-      .catch(() => setNotFound(true))
+      .catch((err) => {
+        if (err.response?.status === 403 && err.response?.data?.type === 'SUBSCRIPTION_EXPIRED') {
+          setSubscriptionExpired(true);
+        } else {
+          setNotFound(true);
+        }
+      })
       .finally(() => setLoading(false));
   }, [siteId]);
 
@@ -207,6 +214,26 @@ export default function PropertyViewPage() {
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin" />
         <span className="text-sm text-slate-400">Loading project...</span>
+      </div>
+    </div>
+  );
+
+  if (subscriptionExpired) return (
+    <div className="min-h-screen flex items-center justify-center bg-white p-6">
+      <div className="max-w-md w-full text-center">
+        <div className="w-20 h-20 rounded-[2rem] bg-amber-50 flex items-center justify-center mx-auto mb-8 shadow-xl shadow-amber-100/50 border border-amber-100">
+          <Info size={32} className="text-amber-500" />
+        </div>
+        <h2 className="text-3xl font-black text-slate-900 leading-tight mb-4 tracking-tight">Service Temporarily Unavailable</h2>
+        <p className="text-sm text-slate-400 font-medium leading-relaxed mb-8">
+          This project page is currently inactive as the builder's digital presence is being updated. Please check back later or contact the builder directly.
+        </p>
+        <button 
+          onClick={() => router.back()}
+          className="px-8 py-3.5 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-200 active:scale-95"
+        >
+          Go Back
+        </button>
       </div>
     </div>
   );
