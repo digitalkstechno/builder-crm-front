@@ -1197,7 +1197,7 @@ export default function LandingPage() {
           </section>
 
           <section>
-            <div className="max-w-7xl bg-white py-10 px-6 sm:px-10 md:px-12 lg:px-15 mx-auto">
+            <div className="max-w-7xl py-10 px-6 sm:px-10 md:px-12 lg:px-15 mx-auto">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-7">
                 {stats.map((stat, index) => (
                   <motion.div
@@ -1206,7 +1206,7 @@ export default function LandingPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="flex flex-col items-center text-center   border-white-400 border-white  hover:border-indigo-600 rounded-2xl py-6 px-4 shadow-[0_4px_20px_rgba(79,70,229,0.18)]"
+                    className="flex flex-col items-center text-center py-6 px-4"
                   >
                     <span
                       className="font-Sans font-extrabold text-indigo-600  leading-none mb-3

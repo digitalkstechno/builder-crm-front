@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { MapPin, Building2, ArrowLeft, Phone, Mail, Facebook, Instagram, Linkedin, Twitter, Youtube, ExternalLink, Globe, ChevronRight } from 'lucide-react';
+import { MapPin, Building2, ArrowLeft, Phone, Mail, Facebook, Instagram, Linkedin, Twitter, Youtube, ExternalLink, Globe, ChevronRight, UserCheck, Star, Zap, Building } from 'lucide-react';
 import axios from 'axios';
 import { motion } from 'motion/react';
+import { cn } from '@/lib/utils';
 
 export default function BuilderPublicPage() {
   const { builderId } = useParams();
@@ -30,6 +31,10 @@ export default function BuilderPublicPage() {
 
   const imageUrl = process.env.NEXT_PUBLIC_IMAGE_URL || '';
 
+  const handleGlobalRedirect = () => {
+    window.location.href = 'https://builderscrm.in';
+  };
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="flex flex-col items-center gap-3">
@@ -50,10 +55,10 @@ export default function BuilderPublicPage() {
           This builder's portfolio is currently offline for subscription updates. Please try again later or visit another project.
         </p>
         <button 
-          onClick={() => router.push('/')}
+          onClick={handleGlobalRedirect}
           className="px-8 py-3.5 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-200 active:scale-95"
         >
-          Back to Home
+          Go Back
         </button>
       </div>
     </div>
@@ -67,7 +72,7 @@ export default function BuilderPublicPage() {
         </div>
         <h2 className="text-lg font-semibold text-slate-800">Portfolio not found</h2>
         <p className="text-sm text-slate-400 mt-1 mb-6">This builder profile doesn't exist or has been removed.</p>
-        <button onClick={() => router.push('/')} className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-medium">
+        <button onClick={handleGlobalRedirect} className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-medium">
           Back to Home
         </button>
       </div>
@@ -82,6 +87,13 @@ export default function BuilderPublicPage() {
     ? (builder.websiteDetails.heroImage.startsWith('http') ? builder.websiteDetails.heroImage : `${imageUrl}${builder.websiteDetails.heroImage}`)
     : 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070';
 
+  const stats = [
+    { label: 'Projects', value: sites.length + '+', icon: Building },
+    { label: 'Years Active', value: builder.websiteDetails?.yearsActive || '0+', icon: Zap },
+    { label: 'Cities', value: builder.websiteDetails?.cities || '0+', icon: MapPin },
+    { label: 'Happy Clients', value: builder.websiteDetails?.happyClients || '0+', icon: UserCheck },
+  ];
+
   const socials = [
     { icon: Facebook, key: 'facebook', color: 'hover:bg-blue-600' },
     { icon: Instagram, key: 'instagram', color: 'hover:bg-pink-600' },
@@ -93,154 +105,118 @@ export default function BuilderPublicPage() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* Navbar */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => router.back()} className="w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-center transition-colors">
-              <ArrowLeft size={16} className="text-slate-500" />
-            </button>
-            <div className="flex items-center gap-2.5">
+      {/* Navbar - Higher, Centered Logo, No Back Button */}
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+        <div className="max-w-6xl mx-auto px-6 h-24 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-1 cursor-pointer" onClick={handleGlobalRedirect}>
               {logoSrc
-                ? <img src={logoSrc} alt="" className="h-8 w-8 object-contain rounded-lg border border-slate-100" />
-                : <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">{builder.companyName?.[0]}</div>
+                ? <img src={logoSrc} alt={builder.companyName} className="h-14 w-auto object-contain" />
+                : <div className="h-14 px-6 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-100 uppercase tracking-tighter">{builder.companyName}</div>
               }
-              <span className="font-semibold text-slate-800 text-sm">{builder.companyName}</span>
             </div>
-          </div>
-          <span className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-600 font-medium bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Verified Builder
-          </span>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
-        <img src={heroSrc} alt="Hero" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 max-w-6xl mx-auto px-6 pb-12">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <p className="text-indigo-300 text-sm font-medium mb-3">Builder Portfolio</p>
-            <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-4 max-w-3xl">
-              {builder.websiteDetails?.tagline || 'Redefining Urban Excellence'}
-            </h1>
-            <p className="text-slate-300 text-base max-w-xl leading-relaxed">
-              {builder.websiteDetails?.heroSubtitle || 'Premium real estate developments crafted for modern living.'}
-            </p>
-          </motion.div>
-        </div>
+      {/* Hero - Full Image, No Overlay Text */}
+      <section className="relative h-[65vh] min-h-[450px] overflow-hidden">
+        <img src={heroSrc} alt="Portfolio Hero" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/10" />
       </section>
 
-      {/* Stats Bar */}
-      <div className="bg-slate-900 text-white">
-        <div className="max-w-6xl mx-auto px-6 py-6 flex flex-wrap items-center gap-8">
-          <div className="text-center">
-            <p className="text-2xl font-bold">{sites.length}</p>
-            <p className="text-xs text-slate-400 mt-0.5">Active Projects</p>
-          </div>
-          <div className="w-px h-10 bg-slate-700 hidden sm:block" />
-          {builder.address && (
-            <div className="flex items-center gap-2 text-slate-300 text-sm">
-              <MapPin size={14} className="text-indigo-400 shrink-0" />
-              <span>{builder.address}</span>
+      {/* Statistics Section - Floating Bar Below Hero */}
+      <div className="relative z-10 -mt-12 max-w-6xl mx-auto px-6">
+        <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-8 md:p-12">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 items-center">
+                {stats.map((stat, i) => (
+                    <div key={i} className="flex flex-col items-center text-center space-y-2 border-r border-slate-50 last:border-0">
+                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-indigo-600 mb-1">
+                            <stat.icon size={20} />
+                        </div>
+                        <p className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">{stat.value}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{stat.label}</p>
+                    </div>
+                ))}
             </div>
-          )}
-          {builder.websiteDetails?.phone && (
-            <>
-              <div className="w-px h-10 bg-slate-700 hidden sm:block" />
-              <a href={`tel:${builder.websiteDetails.phone}`} className="flex items-center gap-2 text-slate-300 text-sm hover:text-white transition-colors">
-                <Phone size={14} className="text-emerald-400 shrink-0" />
-                {builder.websiteDetails.phone}
-              </a>
-            </>
-          )}
         </div>
       </div>
 
-      {/* About */}
+      {/* About Section */}
       {builder.websiteDetails?.about && (
-        <section className="max-w-6xl mx-auto px-6 py-16">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <p className="text-indigo-600 text-sm font-semibold mb-3">About Us</p>
-              <h2 className="text-3xl font-bold text-slate-900 mb-5 leading-tight">Who We Are</h2>
-              <p className="text-slate-500 leading-relaxed">{builder.websiteDetails.about}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { label: 'Projects', value: sites.length + '+' },
-                { label: 'Years Active', value: new Date().getFullYear() - 2018 + '+' },
-                { label: 'Cities', value: [...new Set(sites.map((s: any) => s.city))].length + '+' },
-                { label: 'Happy Clients', value: '500+' },
-              ].map((stat) => (
-                <div key={stat.label} className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
-                  <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
-                  <p className="text-sm text-slate-400 mt-1">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+        <section className="max-w-4xl mx-auto px-6 py-24 text-center">
+            <div className="w-12 h-1.5 bg-indigo-600 rounded-full mx-auto mb-8" />
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-8 tracking-tight">Our Philosophy</h2>
+            <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium italic">
+                "{builder.websiteDetails.about}"
+            </p>
         </section>
       )}
 
-      {/* Projects */}
-      <section className="max-w-6xl mx-auto px-6 py-16 border-t border-slate-100">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <p className="text-indigo-600 text-sm font-semibold mb-2">Our Portfolio</p>
-            <h2 className="text-3xl font-bold text-slate-900">Featured Projects</h2>
+      {/* Projects Section */}
+      <section className="max-w-6xl mx-auto px-6 py-20 border-t border-slate-50">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-16">
+          <div className="text-center md:text-left">
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-2">Featured Projects</h2>
+            <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">Excellence in every square foot</p>
           </div>
-          <span className="text-sm text-slate-400">{sites.length} project{sites.length !== 1 ? 's' : ''}</span>
+          <div className="px-6 py-3 bg-slate-50 rounded-2xl border border-slate-100">
+             <span className="text-sm font-black text-slate-600 uppercase tracking-widest">{sites.length} Active Sites</span>
+          </div>
         </div>
 
         {sites.length === 0 ? (
-          <div className="text-center py-20 bg-slate-50 rounded-3xl border border-slate-100 border-dashed">
-            <Building2 size={40} className="text-slate-200 mx-auto mb-4" />
-            <p className="text-slate-400 font-medium">No projects listed yet</p>
+          <div className="text-center py-32 bg-slate-50 rounded-[3rem] border border-slate-100 border-dashed">
+            <Building2 size={48} className="text-slate-200 mx-auto mb-4" />
+            <p className="text-slate-400 font-black uppercase tracking-widest text-xs">Innovation in progress</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {sites.map((site: any, i: number) => {
               const mainImage = site.images?.[0] ? `${imageUrl}${site.images[0]}` : null;
               return (
                 <motion.div
                   key={site._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.08 }}
-                  whileHover={{ y: -4 }}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ y: -8 }}
                   onClick={() => router.push(`/property/${site._id}?from=${builderId}`)}
-                  className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:shadow-slate-200/60 overflow-hidden cursor-pointer transition-all duration-300"
+                  className="group relative bg-white rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-slate-200/80 cursor-pointer transition-all duration-500"
                 >
-                  <div className="relative h-52 bg-slate-100 overflow-hidden">
+                  <div className="relative h-64 overflow-hidden">
                     {mainImage
-                      ? <img src={mainImage} alt={site.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      : <div className="w-full h-full bg-gradient-to-br from-indigo-50 to-slate-100 flex items-center justify-center"><Building2 size={40} className="text-indigo-200" /></div>
+                      ? <img src={mainImage} alt={site.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      : <div className="w-full h-full bg-slate-50 flex items-center justify-center"><Building2 size={40} className="text-slate-200" /></div>
                     }
-                    <div className="absolute top-3 left-3">
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${site.status === 'Active' ? 'bg-emerald-500 text-white' : 'bg-amber-400 text-amber-900'}`}>
-                        {site.status}
-                      </span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    
+                    <div className="absolute top-4 right-4">
+                        <span className={cn(
+                            "text-[9px] font-black px-4 py-2 rounded-xl uppercase tracking-widest backdrop-blur-md shadow-lg",
+                            site.status === 'Active' ? "bg-emerald-500/90 text-white" : "bg-amber-400/90 text-white"
+                        )}>
+                            {site.status}
+                        </span>
                     </div>
-                    {site.images?.length > 1 && (
-                      <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-lg font-medium">
-                        +{site.images.length - 1} photos
-                      </div>
-                    )}
                   </div>
-                  <div className="p-5">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-slate-900 text-base leading-tight group-hover:text-indigo-600 transition-colors">{site.name}</h3>
-                      <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-500 shrink-0 mt-0.5 transition-colors" />
+                  
+                  <div className="p-8">
+                    <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+                             <Building2 size={14} />
+                        </div>
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{site.area}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 mt-2 text-sm text-slate-400">
-                      <MapPin size={13} className="text-indigo-400 shrink-0" />
-                      <span className="truncate">{site.area}, {site.city}</span>
+                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors mb-4">{site.name}</h3>
+                    <div className="flex items-center justify-between mt-auto pt-6 border-t border-slate-50">
+                        <div className="flex items-center gap-1.5 text-slate-500">
+                            <MapPin size={14} className="text-indigo-500" />
+                            <span className="text-xs font-bold">{site.city}</span>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-500">
+                            <ChevronRight size={16} />
+                        </div>
                     </div>
-                    {site.budgets?.[0] && (
-                      <p className="mt-3 text-sm font-semibold text-slate-700">₹{site.budgets[0].label}</p>
-                    )}
                   </div>
                 </motion.div>
               );
@@ -249,76 +225,80 @@ export default function BuilderPublicPage() {
         )}
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white mt-8">
-        <div className="max-w-6xl mx-auto px-6 py-14">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pb-10 border-b border-white/10">
-            {/* Brand */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                {logoSrc
-                  ? <img src={logoSrc} alt="" className="h-10 w-10 object-contain rounded-xl bg-white p-1.5" />
-                  : <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center"><Building2 size={20} className="text-white" /></div>
-                }
-                <div>
-                  <h3 className="font-semibold text-white">{builder.companyName}</h3>
-                  <p className="text-xs text-indigo-400">Verified Builder</p>
+      {/* Footer - Professional Redirection */}
+      <footer className="bg-slate-950 text-white overflow-hidden relative">
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 relative z-10">
+            <div className="space-y-6">
+                {logoSrc ? (
+                    <img src={logoSrc} alt="" className="h-12 w-auto brightness-0 invert opacity-80" />
+                ) : (
+                    <div className="text-2xl font-black tracking-tighter uppercase">{builder.companyName}</div>
+                )}
+                <p className="text-slate-500 text-sm leading-relaxed max-w-sm">
+                    {builder.websiteDetails?.about?.substring(0, 150) || 'Crafting iconic landmarks and sustainable communities that stand the test of time.'}...
+                </p>
+                <div className="flex gap-3">
+                    {socials.map(({ icon: Icon, key, color }) =>
+                        builder.websiteDetails?.socialLinks?.[key] ? (
+                            <a key={key} href={builder.websiteDetails.socialLinks[key]} target="_blank" rel="noopener noreferrer"
+                                className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-500 hover:bg-white/10 hover:text-white transition-all">
+                                <Icon size={16} />
+                            </a>
+                        ) : null
+                    )}
                 </div>
-              </div>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                {builder.websiteDetails?.about?.substring(0, 120) || 'Delivering quality spaces that redefine modern living.'}
-                {builder.websiteDetails?.about?.length > 120 ? '...' : ''}
-              </p>
             </div>
 
-            {/* Contact */}
-            <div className="space-y-4">
-              <h4 className="text-sm font-semibold text-white">Contact</h4>
-              <div className="space-y-3">
-                {builder.address && (
-                  <div className="flex items-start gap-2.5 text-sm text-slate-400">
-                    <MapPin size={14} className="text-indigo-400 mt-0.5 shrink-0" />
-                    {builder.address}
-                  </div>
-                )}
-                {builder.websiteDetails?.phone && (
-                  <a href={`tel:${builder.websiteDetails.phone}`} className="flex items-center gap-2.5 text-sm text-slate-400 hover:text-white transition-colors">
-                    <Phone size={14} className="text-emerald-400 shrink-0" />
-                    {builder.websiteDetails.phone}
-                  </a>
-                )}
-                {builder.websiteDetails?.email && (
-                  <a href={`mailto:${builder.websiteDetails.email}`} className="flex items-center gap-2.5 text-sm text-slate-400 hover:text-white transition-colors">
-                    <Mail size={14} className="text-indigo-400 shrink-0" />
-                    {builder.websiteDetails.email}
-                  </a>
-                )}
-              </div>
+            <div className="space-y-8">
+                <h4 className="text-xs font-black uppercase tracking-[0.4em] text-indigo-400">Direct Contact</h4>
+                <div className="space-y-6">
+                    <div className="flex items-start gap-4 group">
+                        <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-indigo-400 transition-colors">
+                            <MapPin size={18} />
+                        </div>
+                        <p className="text-sm text-slate-400 leading-relaxed pt-2">{builder.address || 'Corporate Headquarters'}</p>
+                    </div>
+                    {builder.websiteDetails?.phone && (
+                        <a href={`tel:${builder.websiteDetails.phone}`} className="flex items-center gap-4 group">
+                            <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-emerald-400 transition-colors">
+                                <Phone size={18} />
+                            </div>
+                            <span className="text-sm text-slate-400 font-bold">{builder.websiteDetails.phone}</span>
+                        </a>
+                    )}
+                </div>
             </div>
 
-            {/* Social */}
-            <div className="space-y-4">
-              <h4 className="text-sm font-semibold text-white">Follow Us</h4>
-              {builder.websiteDetails?.socialLinks ? (
-                <div className="flex flex-wrap gap-2">
-                  {socials.map(({ icon: Icon, key, color }) =>
-                    builder.websiteDetails.socialLinks[key] ? (
-                      <a key={key} href={builder.websiteDetails.socialLinks[key]} target="_blank" rel="noopener noreferrer"
-                        className={`w-9 h-9 bg-white/10 ${color} text-slate-400 hover:text-white rounded-xl flex items-center justify-center transition-all`}>
-                        <Icon size={15} />
-                      </a>
-                    ) : null
-                  )}
+            <div className="space-y-8">
+                <h4 className="text-xs font-black uppercase tracking-[0.4em] text-indigo-400">Newsletter</h4>
+                <p className="text-sm text-slate-500 leading-relaxed">Stay updated with our latest luxury developments and market insights.</p>
+                <div className="relative group">
+                    <input 
+                        type="email" 
+                        placeholder="your@email.com" 
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-indigo-500/50 transition-all placeholder:text-slate-700"
+                    />
+                    <button className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white hover:bg-indigo-500 transition-all">
+                        <ChevronRight size={18} />
+                    </button>
                 </div>
-              ) : (
-                <div className="flex items-center gap-2 text-slate-500 text-sm"><Globe size={14} /> No social links added</div>
-              )}
             </div>
           </div>
 
-          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
-            <span>© {new Date().getFullYear()} {builder.companyName}. All rights reserved.</span>
-            <span>Powered by builderscrm.in</span>
+          <div className="mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+            <p className="text-[10px] font-black text-slate-700 uppercase tracking-[0.3em]">
+                © {new Date().getFullYear()} {builder.companyName} — Architectural Excellence
+            </p>
+            <div 
+                onClick={handleGlobalRedirect}
+                className="group cursor-pointer flex items-center gap-2"
+            >
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] group-hover:text-white transition-colors">
+                    Powered by <span className="text-indigo-500 group-hover:text-indigo-400 transition-colors">builderscrm.in</span>
+                </span>
+                <ExternalLink size={10} className="text-slate-700 group-hover:text-indigo-400 transition-colors" />
+            </div>
           </div>
         </div>
       </footer>

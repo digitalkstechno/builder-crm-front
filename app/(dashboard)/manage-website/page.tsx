@@ -22,6 +22,9 @@ export default function ManageWebsitePage() {
     email: '', 
     logo: '',
     heroImage: '',
+    yearsActive: '',
+    cities: '',
+    happyClients: '',
     socialLinks: {
       facebook: '',
       instagram: '',
@@ -57,6 +60,9 @@ export default function ManageWebsitePage() {
           email: wd.email || '',
           logo: wd.logo || '',
           heroImage: wd.heroImage || '',
+          yearsActive: wd.yearsActive || '',
+          cities: wd.cities || '',
+          happyClients: wd.happyClients || '',
           socialLinks: {
             facebook: sl.facebook || '',
             instagram: sl.instagram || '',
@@ -118,6 +124,9 @@ export default function ManageWebsitePage() {
       formData.append('about', form.about);
       formData.append('phone', form.phone);
       formData.append('email', form.email);
+      formData.append('yearsActive', form.yearsActive);
+      formData.append('cities', form.cities);
+      formData.append('happyClients', form.happyClients);
       
       // Handle Logo
       if (logoFile) {
@@ -229,6 +238,42 @@ export default function ManageWebsitePage() {
                     value={form.address}
                     onChange={handleChange}
                     placeholder="e.g. 101, Corporate Hub, Satellite"
+                    className="w-full text-sm px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:bg-white transition-all font-bold text-slate-900"
+                  />
+               </div>
+            </div>
+
+            <div className="h-px bg-slate-50" />
+
+            {/* Achievement Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Years Active</label>
+                  <input
+                    name="yearsActive"
+                    value={form.yearsActive}
+                    onChange={handleChange}
+                    placeholder="e.g. 10+"
+                    className="w-full text-sm px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:bg-white transition-all font-bold text-slate-900"
+                  />
+               </div>
+               <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cities Covered</label>
+                  <input
+                    name="cities"
+                    value={form.cities}
+                    onChange={handleChange}
+                    placeholder="e.g. 5+"
+                    className="w-full text-sm px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:bg-white transition-all font-bold text-slate-900"
+                  />
+               </div>
+               <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Happy Clients</label>
+                  <input
+                    name="happyClients"
+                    value={form.happyClients}
+                    onChange={handleChange}
+                    placeholder="e.g. 1000+"
                     className="w-full text-sm px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:bg-white transition-all font-bold text-slate-900"
                   />
                </div>
