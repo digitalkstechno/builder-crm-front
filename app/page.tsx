@@ -560,6 +560,7 @@ const testimonials = [
 ];
 
 export default function LandingPage() {
+  const [activeTab, setActiveTab] = useState("analytics");
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.auth,
   );
@@ -1390,11 +1391,10 @@ export default function LandingPage() {
                       >
                         {/* Number circle */}
                         <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 transition-all duration-200 ${
-                            activeStep === i
-                              ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
-                              : "bg-white border border-gray-200 text-indigo-500 group-hover:border-indigo-300"
-                          }`}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 transition-all duration-200 ${activeStep === i
+                            ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
+                            : "bg-white border border-gray-200 text-indigo-500 group-hover:border-indigo-300"
+                            }`}
                         >
                           {step.number}
                         </div>
@@ -1402,11 +1402,10 @@ export default function LandingPage() {
                         {/* Content */}
                         <div>
                           <h3
-                            className={`text-[17px] font-bold leading-snug mb-1 transition-colors ${
-                              activeStep === i
-                                ? "text-indigo-600"
-                                : "text-gray-800 group-hover:text-indigo-500"
-                            }`}
+                            className={`text-[17px] font-bold leading-snug mb-1 transition-colors ${activeStep === i
+                              ? "text-indigo-600"
+                              : "text-gray-800 group-hover:text-indigo-500"
+                              }`}
                           >
                             {step.title}
                           </h3>
@@ -1474,11 +1473,10 @@ export default function LandingPage() {
                             </span>
                           )}
                           <div
-                            className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-[12px] leading-relaxed ${
-                              msg.from === "bot"
-                                ? "bg-white border border-gray-100 text-gray-700 rounded-tl-sm shadow-sm"
-                                : "bg-indigo-600 text-white rounded-tr-sm"
-                            }`}
+                            className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-[12px] leading-relaxed ${msg.from === "bot"
+                              ? "bg-white border border-gray-100 text-gray-700 rounded-tl-sm shadow-sm"
+                              : "bg-indigo-600 text-white rounded-tr-sm"
+                              }`}
                           >
                             {msg.text}
                           </div>
@@ -1529,11 +1527,716 @@ export default function LandingPage() {
                       </div>
                     </div>
                   </div>
+
                 </motion.div>
               </div>
             </div>
           </section>
+          <section className="bg-white py-20 px-6 sm:px-10 md:px-12 lg:px-15">
+            <div className="max-w-7xl mx-auto">
+              {/* header */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="text-center mb-14"
+              >
+                <p className="text-[11px] font-bold tracking-[0.2em] uppercase text-indigo-500 mb-3">
+                  Product Showcase
+                </p>
+                <h2 className="text-[28px] sm:text-[36px] md:text-[44px] font-Sans font-bold text-gray-900 leading-[1.15] tracking-tight mb-4">
+                  Explore the Platform
+                </h2>
+                <p className="text-gray-400 text-[14px] sm:text-[16px] font-jakarta max-w-lg mx-auto leading-relaxed">
+                  Every tool your team needs, designed to be{" "}
+                  <span className="text-[#0f0e2a] font-semibold">
+                    intuitive
+                  </span>{" "}
+                  and fast. No{" "}
+                  <span className="text-[#0f0e2a] font-semibold">training</span>{" "}
+                  required.
+                </p>
+              </motion.div>
+
+              {/* tabs */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="inline-flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-2xl p-1.5 mb-8 flex-wrap"
+              >
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`font-jakarta inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold transition-all
+                ${activeTab === tab.id
+                        ? "bg-white shadow-sm text-[#0f0e2a] border border-slate-200"
+                        : "text-slate-500 hover:text-slate-700"
+                      }`}
+                  >
+                    <span>{tab.icon}</span>
+                    {tab.label}
+                  </button>
+                ))}
+              </motion.div>
+
+              {/* content */}
+              <AnimatePresence mode="wait">
+                {activeTab === "analytics" && (
+                  <motion.div
+                    key="analytics"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -16 }}
+                    transition={{ duration: 0.4 }}
+                    className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm"
+                  >
+                    <h3 className="font-Sans font-bold text-[#0f0e2a] text-[18px] sm:text-[24px] mb-1">
+                      Performance Dashboard
+                    </h3>
+                    <p className="font-jakarta text-[#6b7280] text-[13px] sm:text-[16px] mb-6">
+                      Real-time overview of your entire sales pipeline, team
+                      performance, and lead sources.
+                    </p>
+
+                    {/* stat cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                      {analyticsStats.map((s, i) => (
+                        <div
+                          key={i}
+                          className="border border-slate-100 rounded-2xl p-4"
+                        >
+                          <p className="font-jakarta text-[13px] text-slate-400 mb-2">
+                            {s.label}
+                          </p>
+                          <p className="font-Sans font-extrabold text-[#0f0e2a] text-[24px] sm:text-[28px] leading-none mb-1">
+                            {s.value}
+                          </p>
+                          <p
+                            className={`font-jakarta text-[11px] font-semibold ${s.subColor}`}
+                          >
+                            {s.sub}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* bar chart */}
+                    <p className="font-jakarta text-[12px] font-semibold text-slate-400 mb-4">
+                      Lead Sources This Month
+                    </p>
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
+                      {barData.map((b, i) => (
+                        <div
+                          key={i}
+                          className="flex flex-col items-center gap-2"
+                        >
+                          <div className="w-full h-24 bg-slate-50 rounded-xl flex items-end overflow-hidden">
+                            <motion.div
+                              initial={{ height: 0 }}
+                              whileInView={{ height: `${b.pct}%` }}
+                              viewport={{ once: true }}
+                              transition={{ duration: 0.8, delay: i * 0.1 }}
+                              className="w-full bg-slate-200 rounded-xl"
+                            />
+                          </div>
+                          <span className="font-jakarta text-[12px] text-slate-400 text-center">
+                            {b.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === "pipeline" && (
+                  <motion.div
+                    key="pipeline"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -16 }}
+                    transition={{ duration: 0.4 }}
+                    className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm"
+                  >
+                    <h3 className="font-Sans font-bold text-[#0f0e2a] text-[18px] sm:text-[24px] mb-1">
+                      Lead Pipeline — Kanban View
+                    </h3>
+                    <p className="font-jakarta text-[#6b7280] text-[13px] sm:text-[16px] mb-6">
+                      Drag and drop leads across stages. See your entire funnel
+                      at a glance.
+                    </p>
+
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      {columns.map((col, ci) => (
+                        <div key={ci} className="bg-[#f8f7ff] rounded-2xl p-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <span className="font-jakarta text-[13px] font-bold tracking-[1.5px] uppercase text-slate-400">
+                              {col.title}
+                            </span>
+                            <span className="font-jakarta text-[11px] font-bold text-[#6c5ce7] bg-[#6c5ce7]/10 px-2 py-0.5 rounded-full">
+                              {col.count}
+                            </span>
+                          </div>
+                          <div className="flex flex-col gap-3">
+                            {col.leads.map(
+                              (
+                                lead: {
+                                  name: string;
+                                  detail: string;
+                                  accent?: string;
+                                },
+                                li,
+                              ) => (
+                                <div
+                                  key={li}
+                                  className="bg-white rounded-xl p-3 border border-slate-100 shadow-sm relative overflow-hidden"
+                                >
+                                  {lead.accent && (
+                                    <div
+                                      className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl"
+                                      style={{ background: lead.accent }}
+                                    />
+                                  )}
+                                  <p
+                                    className={`font-Sans font-bold text-[#0f0e2a] text-[14px] mb-1 ${lead.accent ? "pl-2" : ""}`}
+                                  >
+                                    {lead.name}
+                                  </p>
+                                  <p
+                                    className={`font-jakarta text-slate-400 text-[13px] ${lead.accent ? "pl-2" : ""}`}
+                                  >
+                                    {lead.detail}
+                                  </p>
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === "leads" && (
+                  <motion.div
+                    key="leads"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -16 }}
+                    transition={{ duration: 0.4 }}
+                    className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm overflow-x-auto"
+                  >
+                    <h3 className="font-Sans font-bold text-[#0f0e2a] text-[18px] sm:text-[24px] mb-1">
+                      Lead Management Table
+                    </h3>
+                    <p className="font-jakarta text-[#6b7280] text-[13px] sm:text-[16px] mb-6">
+                      Filter, search, sort and act on all your leads from one
+                      clean table view.
+                    </p>
+
+                    <table className="w-full min-w-[700px]">
+                      <thead>
+                        <tr className="border-b border-slate-100">
+                          {[
+                            "Name",
+                            "Source",
+                            "Budget",
+                            "Type",
+                            "Assigned to",
+                            "Status",
+                            "Last activity",
+                          ].map((h) => (
+                            <th
+                              key={h}
+                              className="font-jakarta text-[12px] font-bold text-slate-400 uppercase tracking-wider text-left pb-3 pr-4"
+                            >
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {pipelineLeads.map((lead, i) => (
+                          <tr
+                            key={i}
+                            className="border-b border-slate-50 hover:bg-slate-50 transition-colors"
+                          >
+                            {/* Name */}
+                            <td className="py-3 pr-4">
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className={`${lead.avatarColor} w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0`}
+                                >
+                                  {lead.initials}
+                                </div>
+                                <span className="font-Sans text-[#0f0e2a] font-semibold text-[14px]">
+                                  {lead.name}
+                                </span>
+                              </div>
+                            </td>
+
+                            {/* Source */}
+                            <td className="py-3 pr-4">
+                              <span
+                                className={`font-jakarta text-[12px] font-semibold px-2.5 py-1 rounded-full ${sourceBadge[lead.source]}`}
+                              >
+                                {lead.source}
+                              </span>
+                            </td>
+
+                            {/* Budget */}
+                            <td className="py-3 pr-4 font-jakarta text-slate-500 text-[13px]">
+                              {lead.budget}
+                            </td>
+
+                            {/* Type */}
+                            <td className="py-3 pr-4 font-jakarta text-slate-500 text-[13px]">
+                              {lead.type}
+                            </td>
+
+                            {/* Assigned to */}
+                            <td className="py-3 pr-4 font-jakarta text-slate-500 text-[13px]">
+                              {lead.assignedTo}
+                            </td>
+
+                            {/* Status */}
+                            <td className="py-3 pr-4">
+                              <span
+                                className={`font-jakarta text-[12px] font-semibold px-2.5 py-1 rounded-full ${statusBadge[lead.status]}`}
+                              >
+                                {lead.status}
+                                {lead.status === "Hot"
+                                  ? " 🔥"
+                                  : lead.status === "New"
+                                    ? " ✦"
+                                    : ""}
+                              </span>
+                            </td>
+
+                            {/* Last activity */}
+                            <td className="py-3 font-jakarta text-slate-500 text-[12px]">
+                              {lead.lastActivity}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </motion.div>
+                )}
+
+                {activeTab === "reminders" && (
+                  <motion.div
+                    key="reminders"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -16 }}
+                    transition={{ duration: 0.4 }}
+                    className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm"
+                  >
+                    <h3 className="font-Sans font-bold text-[#0f0e2a] text-[18px] sm:text-[24px] mb-1">
+                      Smart Follow-up Reminders
+                    </h3>
+                    <p className="font-jakarta text-[#6b7280] text-[13px] sm:text-[16px] mb-6">
+                      Automated alerts ensure your team never misses a
+                      follow-up, call, or site visit.
+                    </p>
+                    <div className="flex flex-col gap-3">
+                      {reminders.map((r, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center justify-between border border-slate-100 rounded-2xl px-5 py-4 hover:bg-slate-50 transition-all"
+                        >
+                          <div className="flex items-center gap-4">
+                            {/* Icon box */}
+                            <div
+                              className={`${r.iconBg} w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0`}
+                            >
+                              {r.icon === "bell" && (
+                                <svg
+                                  className={`w-5 h-5 ${r.iconColor}`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth={1.8}
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-9.33-5.001M9 17H4l1.405-1.405A2.032 2.032 0 006 14.158V11a6 6 0 0112 0v3.159c0 .538.214 1.055.595 1.436L20 17H9zm0 0a3 3 0 006 0H9z"
+                                  />
+                                </svg>
+                              )}
+                              {r.icon === "calendar" && (
+                                <svg
+                                  className={`w-5 h-5 ${r.iconColor}`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth={1.8}
+                                  viewBox="0 0 24 24"
+                                >
+                                  <rect
+                                    x="3"
+                                    y="4"
+                                    width="18"
+                                    height="18"
+                                    rx="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M16 2v4M8 2v4M3 10h18"
+                                  />
+                                </svg>
+                              )}
+                              {r.icon === "check" && (
+                                <svg
+                                  className={`w-5 h-5 ${r.iconColor}`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth={1.8}
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="9"
+                                    strokeLinecap="round"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M9 12l2 2 4-4"
+                                  />
+                                </svg>
+                              )}
+                              {r.icon === "phone" && (
+                                <svg
+                                  className={`w-5 h-5 ${r.iconColor}`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth={1.8}
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                                  />
+                                </svg>
+                              )}
+                            </div>
+                            {/* Text */}
+                            <div>
+                              <p className="font-Sans font-semibold text-[#0f0e2a] text-[15px] mb-0.5">
+                                {r.title}
+                              </p>
+                              <p className="font-jakarta text-slate-500 text-[12px]">
+                                {r.detail}
+                              </p>
+                            </div>
+                          </div>
+                          {/* Time */}
+                          <span className="font-jakarta text-[13px] font-bold text-[#6c5ce7] whitespace-nowrap ml-4">
+                            {r.time}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </section>
+          <section className="relative py-20 flex items-center justify-center overflow-hidden bg-[#0f0e2a]">
+            {/* background glow */}
+            <div className="absolute inset-0">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[#3b2d8a]/40 rounded-full blur-[120px]" />
+              <div className="absolute top-1/3 right-1/4 w-[300px] h-[300px] bg-[#4f3bbd]/20 rounded-full blur-[100px]" />
+            </div>
+
+            <div className="relative z-10 text-center px-6 sm:px-10 max-w-5xl mx-auto">
+              {/* badge */}
+              <motion.div
+                initial={{ opacity: 0, y: -16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="inline-flex items-center gap-2 border border-white/20 rounded-full px-4 py-1.5 mb-6"
+              >
+                <span className="w-2 h-2 rounded-full bg-[#00bc7d] animate-pulse" />
+                <span className="font-jakarta text-[10px] sm:text-[12px] font-semibold tracking-[2px] uppercase text-white/80">
+                  Join 100+ Builders Already Closing More Deals
+                </span>
+              </motion.div>
+
+              {/* heading */}
+              <motion.h1
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.15 }}
+                className="font-Sans font-bold text-white leading-[1.05] tracking-tight mb-4 text-[36px] min-[400px]:text-[44px] sm:text-[56px] md:text-[68px] lg:text-[50px] xl:text-[50px]"
+              >
+                Stop Missing Leads.
+                <br />
+                Start Closing Deals.
+              </motion.h1>
+
+              {/* subtitle */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="font-jakarta text-white/60 max-w-[520px] mx-auto leading-relaxed mb-8 text-[13px] min-[400px]:text-[14px] sm:text-[16px] md:text-[16px]"
+              >
+                Every WhatsApp message is a potential ₹50L+ deal. BuildersCRM
+                makes sure you never miss one — automatically, 24/7.
+              </motion.p>
+
+              {/* buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.45 }}
+                className="flex flex-wrap items-center justify-center gap-4 mb-6"
+              >
+                {/* primary */}
+                <button
+                  onClick={() => setIsJoinOpen(true)}
+                  className="font-jakarta inline-flex items-center gap-2.5 bg-white text-[#0f0e2a] font-bold rounded-2xl shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl px-5 sm:px-7 py-3 sm:py-4 text-[13px] sm:text-[15px]"
+                >
+                  <svg
+                    className="w-4 h-4 text-[#6c5ce7]"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M13 2L4.09 12.26a1 1 0 00.91 1.74H11v8l8.91-10.26a1 1 0 00-.91-1.74H13V2z" />
+                  </svg>
+                  Start Free 14-Day Trial
+                </button>
+
+                {/* secondary */}
+                <button
+                  onClick={() => setIsJoinOpen(true)}
+                  className="font-jakarta inline-flex items-center gap-2.5 bg-white/10 border border-white/20 text-white font-bold rounded-2xl transition-all hover:-translate-y-0.5 hover:bg-white/15 px-5 sm:px-7 py-3 sm:py-4 text-[13px] sm:text-[15px]"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <path d="M16 2v4M8 2v4M3 10h18" />
+                  </svg>
+                  Book a Live Demo
+                </button>
+              </motion.div>
+
+              {/* trust line */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="font-jakarta text-white/40 text-[11px] sm:text-[13px] flex flex-wrap items-center justify-center gap-3"
+              >
+                <span>✓ No credit card</span>
+                <span>·</span>
+                <span>✓ Setup in 10 minutes</span>
+                <span>·</span>
+                <span>✓ Cancel anytime</span>
+              </motion.p>
+            </div>
+          </section>
+           <section className="bg-[#f5f5ff] py-20 px-6 sm:px-10 md:px-12 lg:px-15">
+            <div className="max-w-7xl mx-auto">
+              {/* header */}
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="text-center mb-14"
+              >
+                <p className="text-[11px] font-bold tracking-[0.2em] uppercase text-indigo-500 mb-3">
+                  What Clients Say
+                </p>
+                <h2 className="text-[28px] sm:text-[36px] md:text-[44px] font-Sans font-bold text-gray-900 leading-[1.15] tracking-tight mb-4">
+                  Trusted by 100+ Real Estate
+                  <br className="hidden sm:block" /> Businesses Across India
+                </h2>
+                <p className="text-gray-400 text-[14px] sm:text-[16px] font-jakarta max-w-lg mx-auto leading-relaxed">
+                  Real results from builders, developers and real estate teams
+                  using BuildersCRM every day.
+                </p>
+              </motion.div>
+
+              {/* 3 cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {testimonials.map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.15 }}
+                    whileHover={{ y: -6 }}
+                    className={`bg-white rounded-3xl p-8 flex flex-col justify-between shadow-sm
+                ${
+                  item.active
+                    ? "border-2 border-[#6c5ce7]"
+                    : "border border-slate-100"
+                }`}
+                  >
+                    <div>
+                      {/* stars */}
+                      <div className="text-[#f59e0b] text-2xl mb-3">★★★★★</div>
+
+                      {/* quote icon */}
+                      <div className="text-[#6c5ce7] text-2xl mb-2">"</div>
+
+                      {/* text */}
+                      <p className="font-jakarta text-[#374151] text-[14px] sm:text-[15px] leading-relaxed">
+                        {item.review}
+                      </p>
+                    </div>
+
+                    {/* author */}
+                    <div className="flex items-center gap-4 mt-8">
+                      <div
+                        className={`${item.color} w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}
+                      >
+                        {item.initials}
+                      </div>
+                      <div>
+                        <h4 className="font-Sans text-[#111827] font-bold text-[15px]">
+                          {item.name}
+                        </h4>
+                        <p className="font-jakarta text-[#9ca3af] text-[13px]">
+                          {item.role}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </section>
           {/* Footer */}
+          <footer className="pt-16 px-1 sm:px-4 md:px-8 lg:px-10 pb-8 border-t border-gray-100 bg-[#110f1e]">
+            <div className="max-w-7xl mx-auto px-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-x-[48px] gap-y-8  md:gap-10 lg:gap-4 mb-12">
+                {/* 1. Brand Section */}
+                <div className="space-y-6">
+                  <div className="space-y-6">
+                    <div className="inline-block rounded-xl">
+                      <a href="/">
+                        <img
+                          src="/logo.png"
+                          alt="CRMbot"
+                          className="h-10 lg:h-12 w-auto "
+                        />
+                      </a>
+                    </div>
+                  </div>
+                  <p className="text-gray-500 text-[14px] leading-relaxed w-full sm:max-w-xs">
+                    India's most powerful CRM + WhatsApp automation platform
+                    built exclusively for real estate builders and developers.
+                  </p>
+                  <div className="flex items-center gap-2 text-[#00bc7d] cursor-pointer font-medium hover:opacity-80">
+                    <span>💬</span>
+                    <span>Chat with Us</span>
+                  </div>
+                </div>
+
+                {/* 2. Product Links */}
+                <div>
+                  <h4 className="font-bold text-[#fafafab5] mb-6">Product</h4>
+                  <ul className="space-y-4 text-gray-500 text-[14px]">
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      WhatsApp Automation
+                    </li>
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      CRM & Pipeline
+                    </li>
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      Team Management
+                    </li>
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      Property Website
+                    </li>
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      Analytics
+                    </li>
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      Integrations
+                    </li>
+                  </ul>
+                </div>
+
+                {/* 3. Company Links */}
+                <div>
+                  <h4 className="font-bold text-[#fafafab5] mb-6">Company</h4>
+                  <ul className="space-y-4 text-gray-500 text-[14px]">
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      <a href="#industries">About Us</a>
+                    </li>
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      <a href="#industries">Blog</a>
+                    </li>
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      <a href="#industries">Case Studies</a>
+                    </li>
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      <a href="#industries">Careers</a>
+                    </li>
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      <a href="#industries">Contact</a>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* 4. Support Links */}
+                <div>
+                  <h4 className="font-bold text-[#fafafab5] mb-6">Support</h4>
+                  <ul className="space-y-4 text-gray-500 text-[14px]">
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      <a href="#portfolio">Help Center</a>
+                    </li>
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      <a href="#testimonials">API Docs</a>
+                    </li>
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      <a href="#contact">Status Page</a>
+                    </li>
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      <a href="#ContactForm">Privacy Policy</a>
+                    </li>
+                    <li className="hover:text-[#fafafab5] cursor-pointer transition">
+                      Terms of Service
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Bottom Copyright Section */}
+              <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between text-[11px] text-gray-500">
+                <p>
+                  © 2025 BuildersCRM. All rights reserved. Made with ❤️ in
+                  India.
+                </p>
+                <div className="flex gap-4 mt-4 md:mt-0">
+                  <span>Meta WhatsApp Official Partner</span>
+                  <span>ISO 27001 Certified</span>
+                </div>
+              </div>
+            </div>
+          </footer>
         </main>
 
         <JoinModal isOpen={isJoinOpen} onClose={() => setIsJoinOpen(false)} />
