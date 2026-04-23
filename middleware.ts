@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Define unprotected routes
-  const isPublicRoute = pathname === '/'
+  const isPublicRoute = pathname === '/' || pathname.startsWith('/property/') || pathname.startsWith('/builder/')
 
   // 1. If it's a public route and user has no token, let them through
   if (isPublicRoute) {
