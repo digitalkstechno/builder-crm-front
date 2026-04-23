@@ -27,9 +27,11 @@ export default function WhatsAppModal({
 
   useEffect(() => {
     if (initialData) {
+      // Strip 91 prefix for the UI if it exists
+      const displayNum = initialData.number ? initialData.number.replace(/^91/, '') : '';
       setFormData({
         name: initialData.name || '',
-        number: initialData.number || '',
+        number: displayNum,
       });
     } else {
       setFormData({

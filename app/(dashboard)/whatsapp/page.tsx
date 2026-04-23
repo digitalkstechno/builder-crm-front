@@ -185,7 +185,7 @@ export default function WhatsAppPage() {
       key: 'number',
       render: (num: any) => (
         <div className="text-sm text-slate-600">
-          +91 {num.number}
+          {num.number}
         </div>
       )
     },
