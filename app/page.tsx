@@ -300,6 +300,265 @@ const LayoutDashboard = ({ size, className, strokeWidth }: any) => (
   </svg>
 );
 
+const tabs = [
+  { id: "analytics", label: "Analytics", icon: "📊" },
+  { id: "pipeline", label: "Pipeline", icon: "📋" },
+  { id: "leads", label: "Lead Table", icon: "👥" },
+  { id: "reminders", label: "Reminders", icon: "🔔" },
+];
+
+const analyticsStats = [
+  {
+    label: "Total Revenue",
+    value: "₹4.2Cr",
+    sub: "↑ 32% vs last month",
+    subColor: "text-[#00bc7d]",
+  },
+  {
+    label: "Conversion Rate",
+    value: "18.4%",
+    sub: "↑ 7% vs Industry avg",
+    subColor: "text-[#00bc7d]",
+  },
+  {
+    label: "Avg Response Time",
+    value: "47s",
+    sub: "↓ from 4.2 hours",
+    subColor: "text-red-400",
+  },
+  {
+    label: "Active Leads",
+    value: "248",
+    sub: "↑ 24 new this week",
+    subColor: "text-[#00bc7d]",
+  },
+];
+
+const barData = [
+  { label: "WhatsApp", pct: 85 },
+  { label: "99acres", pct: 55 },
+  { label: "Facebook", pct: 65 },
+  { label: "Website", pct: 45 },
+  { label: "Referral", pct: 35 },
+  { label: "Walk-In", pct: 25 },
+];
+
+const columns = [
+  {
+    title: "NEW",
+    count: 12,
+    leads: [
+      { name: "Rohit Patel", detail: "3BHK · ₹75L · Surat" },
+      { name: "Anita Singh", detail: "2BHK · ₹45L · Ahmedabad" },
+      { name: "Dev Malhotra", detail: "Villa · ₹1.5Cr · Vadodara" },
+    ],
+    accent: null,
+  },
+  {
+    title: "CONTACTED",
+    count: 8,
+    leads: [
+      { name: "Neha Verma", detail: "3BHK · ₹85L · Rajkot" },
+      { name: "Suresh Jain", detail: "2BHK · ₹55L · Surat" },
+    ],
+    accent: null,
+  },
+  {
+    title: "SITE VISIT",
+    count: 5,
+    leads: [
+      {
+        name: "Rahul Kapoor",
+        detail: "3BHK · ₹85L · Tomorrow",
+        accent: "#6c5ce7",
+      },
+      { name: "Priya Shah", detail: "2BHK · ₹60L · Fri", accent: "#f59e0b" },
+    ],
+    accent: null,
+  },
+  {
+    title: "DEAL CLOSED",
+    count: 3,
+    leads: [
+      {
+        name: "Amit Mehta ✓",
+        detail: "Villa · ₹1.2Cr · Closed",
+        accent: "#00bc7d",
+      },
+      {
+        name: "Pooja Rathi ✓",
+        detail: "3BHK · ₹78L · Closed",
+        accent: "#00bc7d",
+      },
+    ],
+    accent: null,
+  },
+];
+
+// const pipelineLeads = [
+//   {
+//     initials: "RP",
+//     name: "Rohit Patel",
+//     project: "Skyline Heights",
+//     stage: "Site Visit",
+//     value: "₹75L",
+//     color: "bg-indigo-500",
+//   },
+//   {
+//     initials: "AS",
+//     name: "Anita Singh",
+//     project: "Green Valley",
+//     stage: "Negotiation",
+//     value: "₹45L",
+//     color: "bg-emerald-500",
+//   },
+//   {
+//     initials: "DM",
+//     name: "Dev Malhotra",
+//     project: "Royal Villas",
+//     stage: "Booking",
+//     value: "₹1.5Cr",
+//     color: "bg-purple-500",
+//   },
+//   {
+//     initials: "NV",
+//     name: "Neha Verma",
+//     project: "Sunrise Towers",
+//     stage: "Enquiry",
+//     value: "₹85L",
+//     color: "bg-amber-500",
+//   },
+// ];
+
+const pipelineLeads = [
+  {
+    initials: "VJ",
+    name: "Vikram Joshi",
+    source: "WhatsApp",
+    budget: "₹65–70L",
+    type: "3BHK",
+    assignedTo: "Rajesh K.",
+    status: "Hot",
+    lastActivity: "2 hours ago",
+    avatarColor: "bg-emerald-100 text-emerald-800",
+  },
+  {
+    initials: "PS",
+    name: "Priya Sharma",
+    source: "Facebook",
+    budget: "₹45–55L",
+    type: "2BHK",
+    assignedTo: "Sneha M.",
+    status: "Warm",
+    lastActivity: "Yesterday",
+    avatarColor: "bg-blue-100 text-blue-800",
+  },
+  {
+    initials: "RG",
+    name: "Rahul Gupta",
+    source: "WhatsApp",
+    budget: "₹1.2Cr+",
+    type: "Villa",
+    assignedTo: "Amit S.",
+    status: "New",
+    lastActivity: "Just now",
+    avatarColor: "bg-purple-100 text-purple-800",
+  },
+  {
+    initials: "KN",
+    name: "Kavita Nair",
+    source: "99acres",
+    budget: "₹80–90L",
+    type: "3BHK",
+    assignedTo: "Rajesh K.",
+    status: "Warm",
+    lastActivity: "3 days ago",
+    avatarColor: "bg-pink-100 text-pink-800",
+  },
+];
+
+const sourceBadge: Record<string, string> = {
+  WhatsApp: "bg-emerald-50 text-emerald-700",
+  Facebook: "bg-blue-50 text-blue-700",
+  "99acres": "bg-purple-50 text-purple-700",
+};
+
+const statusBadge: Record<string, string> = {
+  Hot: "bg-orange-50 text-orange-700",
+  Warm: "bg-yellow-50 text-yellow-700",
+  New: "bg-green-50 text-green-700",
+};
+
+const stageColor: Record<string, string> = {
+  "Site Visit": "bg-blue-50 text-blue-600",
+  Negotiation: "bg-yellow-50 text-yellow-600",
+  Booking: "bg-green-50 text-green-600",
+  Enquiry: "bg-purple-50 text-purple-600",
+};
+
+const reminders = [
+  {
+    icon: "bell",
+    title: "Call Vikram Joshi — Site Visit Follow-up",
+    detail: "Assigned to Rajesh K. · 3BHK ₹65L",
+    time: "Today 2:00 PM",
+    iconBg: "bg-orange-50",
+    iconColor: "text-orange-400",
+  },
+  {
+    icon: "calendar",
+    title: "Site Visit — Rahul Kapoor",
+    detail: "Sunrise Heights, Tower B · 3BHK ₹85L",
+    time: "Tomorrow 11:00 AM",
+    iconBg: "bg-indigo-50",
+    iconColor: "text-indigo-400",
+  },
+  {
+    icon: "check",
+    title: "Send Brochure — Kavita Nair",
+    detail: "WhatsApp message · PDF floor plans",
+    time: "Fri 10:00 AM",
+    iconBg: "bg-emerald-50",
+    iconColor: "text-emerald-500",
+  },
+  {
+    icon: "phone",
+    title: "Price Negotiation Call — Priya Shah",
+    detail: "2BHK ₹60L · Ready to book",
+    time: "Fri 3:00 PM",
+    iconBg: "bg-orange-50",
+    iconColor: "text-orange-400",
+  },
+];
+
+const testimonials = [
+  {
+    initials: "RJ",
+    name: "Ramesh Joshi",
+    role: "Director, Shree Sai Developers · Surat",
+    review:
+      "Before BuildersCRM, we were losing 60% of our WhatsApp leads because no one could respond fast enough. Now the bot qualifies everyone instantly and our sales team only handles hot leads. Our conversions went from 8% to 26% in 3 months.",
+    color: "bg-[#6c5ce7]",
+  },
+  {
+    initials: "PM",
+    name: "Pooja Mehta",
+    role: "CEO, Horizon Realty · Ahmedabad",
+    review:
+      "The WhatsApp bot is incredible. It feels like we hired 5 extra sales people who work 24 hours a day. Every lead gets a reply in seconds. My team now only does what they're best at — closing deals. Highly recommend BuildersCRM.",
+    color: "bg-[#f59e0b]",
+    active: true,
+  },
+  {
+    initials: "AK",
+    name: "Arvind Kulkarni",
+    role: "MD, AK Constructions · Pune",
+    review:
+      "The mini website builder alone is worth the subscription. I launched our new project page in 20 minutes, added it to our WhatsApp ad and collected 84 qualified leads in the first week. The CRM tracked every single one automatically.",
+    color: "bg-[#00bc7d]",
+  },
+];
+
 export default function LandingPage() {
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.auth,
