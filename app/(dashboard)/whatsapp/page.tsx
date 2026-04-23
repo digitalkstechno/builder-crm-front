@@ -169,7 +169,7 @@ export default function WhatsAppPage() {
 
   const columns = [
     {
-      header: 'Hub Name',
+      header: 'Number Name',
       key: 'name',
       render: (num: any) => (
         <div className="flex items-center gap-3">
@@ -185,7 +185,7 @@ export default function WhatsAppPage() {
       key: 'number',
       render: (num: any) => (
         <div className="text-sm text-slate-600">
-          +91 {num.number}
+          {num.number}
         </div>
       )
     },

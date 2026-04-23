@@ -12,12 +12,19 @@ export default function BuilderPublicPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [subscriptionExpired, setSubscriptionExpired] = useState(false);
 
   useEffect(() => {
     if (!builderId) return;
     axios.get(`${process.env.NEXT_PUBLIC_API_URL}/public/builders/${builderId}`)
       .then(res => setData(res.data.data))
-      .catch(() => setNotFound(true))
+      .catch((err) => {
+        if (err.response?.status === 403 && err.response?.data?.type === 'SUBSCRIPTION_EXPIRED') {
+          setSubscriptionExpired(true);
+        } else {
+          setNotFound(true);
+        }
+      })
       .finally(() => setLoading(false));
   }, [builderId]);
 
@@ -28,6 +35,26 @@ export default function BuilderPublicPage() {
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin" />
         <span className="text-sm text-slate-400">Loading portfolio...</span>
+      </div>
+    </div>
+  );
+
+  if (subscriptionExpired) return (
+    <div className="min-h-screen flex items-center justify-center bg-white p-6">
+      <div className="max-w-md w-full text-center">
+        <div className="w-20 h-20 rounded-[2rem] bg-indigo-50 flex items-center justify-center mx-auto mb-8 shadow-xl shadow-indigo-100/50 border border-indigo-100">
+          <Globe size={32} className="text-indigo-500" />
+        </div>
+        <h2 className="text-3xl font-black text-slate-900 leading-tight mb-4 tracking-tight">Portfolio Under Maintenance</h2>
+        <p className="text-sm text-slate-400 font-medium leading-relaxed mb-8">
+          This builder's portfolio is currently offline for subscription updates. Please try again later or visit another project.
+        </p>
+        <button 
+          onClick={() => router.push('/')}
+          className="px-8 py-3.5 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-200 active:scale-95"
+        >
+          Back to Home
+        </button>
       </div>
     </div>
   );
@@ -291,7 +318,7 @@ export default function BuilderPublicPage() {
 
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
             <span>© {new Date().getFullYear()} {builder.companyName}. All rights reserved.</span>
-            <span>Powered by BuildFlow CRM</span>
+            <span>Powered by builderscrm.in</span>
           </div>
         </div>
       </footer>
