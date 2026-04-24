@@ -27,8 +27,10 @@ export default function Topbar() {
   const { notifications, unreadCount } = useSelector((state: RootState) => state.notification);
   const { searchResults, searchLoading } = useSelector((state: RootState) => state.lead);
   const { user } = useSelector((state: RootState) => state.auth);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     dispatch(fetchNotifications());
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
@@ -121,7 +123,7 @@ export default function Topbar() {
         <div>
           <h2 className="text-sm font-semibold text-slate-800 capitalize tracking-tight">{getPageTitle()}</h2>
           <p className="text-[10px] text-slate-400 font-medium">
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            {mounted ? new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'Loading...'}
           </p>
         </div>
 
@@ -281,9 +283,9 @@ export default function Topbar() {
 
           <div className="flex items-center gap-2 pr-4 border-r border-slate-50">
             <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 border border-indigo-100/50">
-              <span className="text-xs font-semibold">{getUserInitials()}</span>
+              <span className="text-xs font-semibold">{mounted ? getUserInitials() : 'U'}</span>
             </div>
-            {user && (
+            {mounted && user && (
               <div className="hidden md:block">
                 <p className="text-[11px] font-bold text-slate-900 leading-none mb-0.5">{user.fullName}</p>
                 <p className="text-[9px] text-slate-400 font-medium leading-none uppercase tracking-tighter">{user.role}</p>

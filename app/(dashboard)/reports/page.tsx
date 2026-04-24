@@ -1,327 +1,550 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  BarChart3, 
-  Users, 
-  Building2, 
-  TrendingUp, 
-  Calendar, 
-  Download, 
-  Filter,
-  ArrowUpRight,
-  ArrowDownRight,
-  CheckCircle2,
-  Clock,
-  AlertCircle
+import {
+  TrendingUp, Building2, Users, CheckCircle2,
+  PhoneCall, Target, Download, RefreshCw,
+  ArrowUpRight, ArrowDownRight, AlertCircle,
+  BarChart3, PieChart, Activity
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
-import { fetchSites } from '@/redux/slices/siteSlice';
-import { fetchLeads } from '@/redux/slices/leadSlice';
-import { fetchTeams } from '@/redux/slices/teamSlice';
+import { fetchReportStats } from '@/redux/slices/reportSlice';
 import { cn } from '@/lib/utils';
+import { format, subDays } from 'date-fns';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
+const DATE_FILTERS = [
+  { id: 'today', label: 'Today' },
+  { id: '7days', label: '7 Days' },
+  { id: '30days', label: '30 Days' },
+  { id: 'custom', label: 'Custom' },
+];
+
+const COLORS = {
+  stage: [
+    { bar: 'bg-violet-500', light: 'bg-violet-50', text: 'text-violet-600' },
+    { bar: 'bg-blue-500', light: 'bg-blue-50', text: 'text-blue-600' },
+    { bar: 'bg-emerald-500', light: 'bg-emerald-50', text: 'text-emerald-600' },
+    { bar: 'bg-amber-500', light: 'bg-amber-50', text: 'text-amber-600' },
+    { bar: 'bg-rose-500', light: 'bg-rose-50', text: 'text-rose-600' },
+    { bar: 'bg-sky-500', light: 'bg-sky-50', text: 'text-sky-600' },
+  ],
+};
+
+function SkeletonBar() {
+  return (
+    <div className="animate-pulse space-y-2">
+      <div className="flex justify-between">
+        <div className="h-3 bg-slate-100 rounded w-28" />
+        <div className="h-3 bg-slate-100 rounded w-10" />
+      </div>
+      <div className="h-2 bg-slate-100 rounded-full w-full" />
+    </div>
+  );
+}
 
 export default function ReportsPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { sites } = useSelector((state: RootState) => state.site);
-  const { leads, loading: leadsLoading } = useSelector((state: RootState) => state.lead);
-  const { teams } = useSelector((state: RootState) => state.team);
+  const { summary, stageCounts, sourceCounts, agentCounts, sitePerformance, loading } =
+    useSelector((state: RootState) => state.report);
+
+  const [dateFilter, setDateFilter] = React.useState('30days');
+  const [customRange, setCustomRange] = React.useState({
+    start: '',
+    end: '',
+  });
+  const [mounted, setMounted] = React.useState(false);
 
   useEffect(() => {
-    dispatch(fetchSites());
-    dispatch(fetchLeads({ page: 1, limit: 1000 })); // Fetch more for reporting
-    dispatch(fetchTeams());
-  }, [dispatch]);
+    setMounted(true);
+    setCustomRange({
+      start: format(subDays(new Date(), 30), 'yyyy-MM-dd'),
+      end: format(new Date(), 'yyyy-MM-dd'),
+    });
+  }, []);
 
-  // Data Processing
-  const stats = useMemo(() => {
-    const totalLeads = leads.length;
-    const activeSites = sites.filter(s => s.status === 'Active').length;
-    const totalStaff = teams.reduce((acc, team) => acc + (team.members?.length || 0), 0);
+  const loadData = useCallback(() => {
+    dispatch(fetchReportStats({
+      filter: dateFilter,
+      startDate: dateFilter === 'custom' ? customRange.start : undefined,
+      endDate: dateFilter === 'custom' ? customRange.end : undefined,
+    }));
+  }, [dispatch, dateFilter, customRange]);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
     
-    // Calculate lead status breakdown
-    const statusCounts: Record<string, number> = {};
-    const sourceCounts: Record<string, number> = {};
+    // Header Mesh/Gradient feel
+    doc.setFillColor(15, 23, 42); // Slate 900
+    doc.rect(0, 0, 210, 50, 'F');
     
-    leads.forEach(lead => {
-      const status = lead.stageName || 'New';
-      statusCounts[status] = (statusCounts[status] || 0) + 1;
-      
-      const source = lead.source || 'Direct';
-      sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+    // Accent Line
+    doc.setFillColor(79, 70, 229); // Indigo 600
+    doc.rect(0, 48, 210, 2, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('BUSINESS AUDIT REPORT', 14, 25);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(148, 163, 184); // Slate 400
+    doc.text('PERFORMANCE ANALYTICS & PIPELINE METRICS', 14, 33);
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.text(`Generated: ${format(new Date(), 'PPP p')}`, 14, 42);
+    doc.text(`Period: ${dateFilter.toUpperCase()}${dateFilter === 'custom' ? ` (${customRange.start} to ${customRange.end})` : ''}`, 140, 42);
+
+    // Summary Section
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Key Performance Indicators', 14, 65);
+    
+    autoTable(doc, {
+      startY: 70,
+      head: [['Metric', 'Value', 'Status']],
+      body: [
+        ['Total Leads Generated', summary.totalLeads.toString(), summary.leadChange >= 0 ? 'Trending Up' : 'Trending Down'],
+        ['Lead Conversion Rate', `${summary.conversionRate}%`, summary.conversionRate > 20 ? 'High' : 'Normal'],
+        ['Followup Engagement', `${summary.followupRate}%`, 'Active'],
+        ['Staff Productivity', summary.totalStaff.toString(), 'Stable'],
+        ['Project Footprint', summary.activeSites.toString(), 'Operational'],
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [79, 70, 229], textColor: 255, fontStyle: 'bold' },
+      styles: { fontSize: 9, cellPadding: 4 },
+      columnStyles: { 1: { fontStyle: 'bold' } }
     });
 
-    // Calculate site performance
-    const sitePerformance = sites.map(site => ({
-      name: site.name,
-      leadCount: leads.filter(l => l.siteId?._id === site._id || l.siteId === site._id).length,
-      color: `hsl(${Math.random() * 360}, 70%, 60%)`
-    })).sort((a, b) => b.leadCount - a.leadCount).slice(0, 5);
+    // Lead Pipeline
+    const pipelineY = (doc as any).lastAutoTable.finalY + 15;
+    doc.setFontSize(14);
+    doc.text('Lead Pipeline Distribution', 14, pipelineY);
+    
+    autoTable(doc, {
+      startY: pipelineY + 5,
+      head: [['Sales Stage', 'Lead Count', 'Market Share']],
+      body: stageCounts.map(s => [
+        s.label, 
+        s.count.toString(), 
+        `${summary.totalLeads > 0 ? Math.round((s.count / summary.totalLeads) * 100) : 0}%`
+      ]),
+      theme: 'striped',
+      headStyles: { fillColor: [51, 65, 85] },
+      styles: { fontSize: 9 }
+    });
 
-    return {
-      totalLeads,
-      activeSites,
-      totalStaff,
-      statusCounts,
-      sourceCounts,
-      sitePerformance,
-      conversionRate: totalLeads > 0 ? Math.round(((statusCounts['Closed'] || 0) / totalLeads) * 100) : 0
-    };
-  }, [leads, sites, teams]);
+    // Project Performance
+    const projectY = (doc as any).lastAutoTable.finalY + 15;
+    doc.setFontSize(14);
+    doc.text('Site Performance Analysis', 14, projectY);
+    
+    autoTable(doc, {
+      startY: projectY + 5,
+      head: [['Project Name', 'Leads', 'Status']],
+      body: sitePerformance.map(s => [s.label, s.count.toString(), s.status || 'Active']),
+      theme: 'grid',
+      headStyles: { fillColor: [16, 185, 129] },
+      styles: { fontSize: 9 }
+    });
 
-  const StatCard = ({ title, value, icon: Icon, trend, color }: any) => (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group"
-    >
-      <div className="flex justify-between items-start mb-4">
-        <div className={cn("p-3 rounded-2xl", color)}>
-          <Icon size={20} className="text-white" />
-        </div>
-        {trend && (
-          <div className={cn(
-            "flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider",
-            trend > 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
-          )}>
-            {trend > 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-            {Math.abs(trend)}%
-          </div>
-        )}
-      </div>
-      <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">{title}</h3>
-      <p className="text-2xl font-black text-slate-900">{value}</p>
-    </motion.div>
-  );
+    // Footer
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.text(`Page ${i} of ${pageCount} | Confidential Business Report`, 105, 290, { align: 'center' });
+    }
+
+    doc.save(`Audit_Report_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+  };
+
+  const maxStage = stageCounts[0]?.count || 1;
+  const maxSite = sitePerformance[0]?.count || 1;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-20 px-4 pt-4">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none mb-2">Business Intelligence</h1>
-          <p className="text-xs text-slate-400 flex items-center gap-2 font-medium">
-            <BarChart3 size={12} className="text-indigo-500" />
-            Performance metrics and lead distribution analytics
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm active:scale-95">
-            <Calendar size={14} /> Last 30 Days
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-slate-900 rounded-xl text-xs font-bold text-white hover:bg-slate-800 transition-all shadow-lg active:scale-95">
-            <Download size={14} /> Export Report
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Leads" value={stats.totalLeads} icon={TrendingUp} trend={12} color="bg-indigo-500" />
-        <StatCard title="Active Sites" value={stats.activeSites} icon={Building2} color="bg-emerald-500" />
-        <StatCard title="Total Staff" value={stats.totalStaff} icon={Users} color="bg-amber-500" />
-        <StatCard title="Conversion" value={`${stats.conversionRate}%`} icon={CheckCircle2} trend={-3} color="bg-rose-500" />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Lead Pipeline */}
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="lg:col-span-2 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm"
-        >
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h3 className="text-lg font-black text-slate-900">Lead Pipeline Breakdown</h3>
-              <p className="text-xs text-slate-400 font-medium">Distribution by sales stage</p>
-            </div>
-            <div className="p-2 bg-slate-50 rounded-xl text-slate-400">
-              <Filter size={16} />
-            </div>
+        {/* ── Header ── */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Audit Intelligence</h1>
+            <p className="text-xs text-slate-400 font-medium flex items-center gap-2 mt-1">
+              <Activity size={12} className="text-indigo-500" />
+              Performance analytics and pipeline audit log
+            </p>
           </div>
 
-          <div className="space-y-6">
-            {Object.entries(stats.statusCounts).length > 0 ? (
-              Object.entries(stats.statusCounts).map(([status, count], idx) => {
-                const percentage = Math.round((count / stats.totalLeads) * 100);
-                const colors = [
-                  'bg-indigo-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500', 'bg-sky-500', 'bg-violet-500'
-                ];
-                const color = colors[idx % colors.length];
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Date filter tabs */}
+            <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 shadow-sm">
+              {DATE_FILTERS.map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setDateFilter(f.id)}
+                  className={cn(
+                    'px-3 py-1.5 rounded-md text-xs font-semibold transition-all',
+                    dateFilter === f.id
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700'
+                  )}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
 
-                return (
-                  <div key={status} className="space-y-2">
-                    <div className="flex justify-between items-end">
-                      <div className="flex items-center gap-2">
-                        <div className={cn("w-2 h-2 rounded-full", color)} />
-                        <span className="text-xs font-bold text-slate-700">{status}</span>
-                      </div>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-sm font-black text-slate-900">{count}</span>
-                        <span className="text-[10px] text-slate-400 font-bold">({percentage}%)</span>
-                      </div>
-                    </div>
-                    <div className="h-3 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100/50">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${percentage}%` }}
-                        transition={{ duration: 1, delay: idx * 0.1 }}
-                        className={cn("h-full rounded-full shadow-lg shadow-indigo-100", color)}
-                      />
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="h-64 flex flex-col items-center justify-center text-slate-300">
-                <AlertCircle size={32} strokeWidth={1} className="mb-2" />
-                <p className="text-sm font-bold">No lead data available</p>
+            {dateFilter === 'custom' && (
+              <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5 shadow-sm">
+                <input
+                  type="date"
+                  value={customRange.start}
+                  onChange={e => setCustomRange(p => ({ ...p, start: e.target.value }))}
+                  className="text-xs text-slate-700 bg-transparent focus:outline-none"
+                />
+                <span className="text-slate-300">–</span>
+                <input
+                  type="date"
+                  value={customRange.end}
+                  onChange={e => setCustomRange(p => ({ ...p, end: e.target.value }))}
+                  className="text-xs text-slate-700 bg-transparent focus:outline-none"
+                />
               </div>
             )}
-          </div>
 
-          <div className="mt-12 pt-8 border-t border-slate-50">
-            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Marketing Source Distribution</h4>
-            <div className="flex flex-wrap gap-4">
-              {Object.entries(stats.sourceCounts).map(([source, count], idx) => {
-                const percentage = Math.round((count / stats.totalLeads) * 100);
-                const bgColors = ['bg-blue-50', 'bg-purple-50', 'bg-rose-50', 'bg-amber-50', 'bg-emerald-50'];
-                const textColors = ['text-blue-600', 'text-purple-600', 'text-rose-600', 'text-amber-600', 'text-emerald-600'];
-                
-                return (
-                  <div key={source} className={cn("px-4 py-3 rounded-2xl border border-transparent hover:border-slate-100 transition-all cursor-default", bgColors[idx % bgColors.length])}>
-                    <p className={cn("text-[10px] font-black uppercase tracking-wider mb-1", textColors[idx % textColors.length])}>{source}</p>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-lg font-black text-slate-900">{count}</span>
-                      <span className="text-[10px] text-slate-400 font-bold">{percentage}%</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </motion.div>
+            <button
+              onClick={loadData}
+              disabled={loading}
+              className="p-2 bg-white border border-slate-200 rounded-lg text-slate-500 hover:bg-slate-50 shadow-sm transition-all"
+            >
+              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            </button>
 
-        {/* Site Performance */}
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden"
-        >
-          {/* Decorative background elements */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl rounded-full -mr-16 -mt-16" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full -ml-16 -mb-16" />
-
-          <div className="relative z-10">
-            <h3 className="text-lg font-black text-white mb-1">Top Projects</h3>
-            <p className="text-xs text-slate-400 font-medium mb-8">Performance by lead volume</p>
-
-            <div className="space-y-8">
-              {stats.sitePerformance.length > 0 ? (
-                stats.sitePerformance.map((site, idx) => (
-                  <div key={site.name} className="group cursor-pointer">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">{site.name}</span>
-                      <span className="text-xs font-black text-white px-2 py-0.5 bg-white/10 rounded-lg">{site.leadCount}</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${(site.leadCount / stats.totalLeads) * 100}%` }}
-                        transition={{ duration: 1, delay: idx * 0.1 }}
-                        className="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 rounded-full"
-                      />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-xs text-slate-500 text-center py-20">No site data found</p>
-              )}
-            </div>
-
-            <button className="w-full mt-10 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all">
-              View Detailed Audit
+            <button
+              onClick={handleExportPDF}
+              className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-all active:scale-95"
+            >
+              <Download size={13} /> Export PDF
             </button>
           </div>
-        </motion.div>
-      </div>
+        </div>
 
-      {/* Team Insights Section */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden"
-      >
-        <div className="p-8 border-b border-slate-50 flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-black text-slate-900">Team Insights</h3>
-            <p className="text-xs text-slate-400 font-medium">Lead assignment and activity by team</p>
-          </div>
-          <button className="text-xs font-black text-indigo-600 hover:underline uppercase tracking-widest">View All Teams</button>
+        {/* ── KPI Cards ── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            {
+              label: 'Total Leads',
+              value: summary.totalLeads,
+              icon: TrendingUp,
+              iconBg: 'bg-indigo-100',
+              iconColor: 'text-indigo-600',
+              trend: summary.leadChange,
+            },
+            {
+              label: 'Active Sites',
+              value: summary.activeSites,
+              icon: Building2,
+              iconBg: 'bg-emerald-100',
+              iconColor: 'text-emerald-600',
+            },
+            {
+              label: 'Total Staff',
+              value: summary.totalStaff,
+              icon: Users,
+              iconBg: 'bg-amber-100',
+              iconColor: 'text-amber-600',
+            },
+            {
+              label: 'Conversion Rate',
+              value: `${summary.conversionRate}%`,
+              icon: CheckCircle2,
+              iconBg: 'bg-rose-100',
+              iconColor: 'text-rose-600',
+            },
+          ].map((card, i) => (
+            <motion.div
+              key={card.label}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.06 }}
+              className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', card.iconBg)}>
+                  <card.icon size={17} className={card.iconColor} />
+                </div>
+                {card.trend !== undefined && (
+                  <span className={cn(
+                    'flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full',
+                    card.trend >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                  )}>
+                    {card.trend >= 0 ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
+                    {Math.abs(card.trend)}%
+                  </span>
+                )}
+              </div>
+              <p className="text-2xl font-bold text-slate-900">{loading ? '—' : card.value}</p>
+              <p className="text-xs text-slate-500 mt-0.5">{card.label}</p>
+            </motion.div>
+          ))}
         </div>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50/50">
-              <tr>
-                <th className="px-8 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Team Name</th>
-                <th className="px-8 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Members</th>
-                <th className="px-8 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned Leads</th>
-                <th className="px-8 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Efficiency</th>
-                <th className="px-8 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Health</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {teams.map((team) => {
-                const teamLeads = leads.filter(l => l.teamId === team._id || l.teamId === team.id).length;
-                const efficiency = teamLeads > 0 ? Math.round((teamLeads / stats.totalLeads) * 100) : 0;
-                
-                return (
-                  <tr key={team._id || team.id} className="hover:bg-slate-50/30 transition-colors">
-                    <td className="px-8 py-4 font-bold text-slate-900 text-sm">{team.teamName || team.name}</td>
-                    <td className="px-8 py-4">
-                      <div className="flex -space-x-2">
-                        {team.members?.slice(0, 3).map((m: any, i: number) => (
-                          <div key={i} className="w-7 h-7 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-indigo-600">
-                            {m.name?.[0] || 'U'}
+
+        {/* ── Followup Row ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[
+            { label: 'Total Followups', value: summary.totalFollowups, icon: PhoneCall, color: 'text-sky-600', bg: 'bg-sky-100', border: 'border-sky-100' },
+            { label: 'Completed', value: summary.completedFollowups, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-100', border: 'border-emerald-100' },
+            // { label: 'Completion Rate', value: `${summary.followupRate}%`, icon: Target, color: 'text-violet-600', bg: 'bg-violet-100', border: 'border-violet-100' },
+          ].map(item => (
+            <div key={item.label} className={cn('bg-white rounded-xl border p-4 shadow-sm flex items-center gap-4', item.border)}>
+              <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0', item.bg)}>
+                <item.icon size={18} className={item.color} />
+              </div>
+              <div>
+                <p className="text-xl font-bold text-slate-900">{loading ? '—' : item.value}</p>
+                <p className="text-xs text-slate-500">{item.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Main Charts Row ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+
+          {/* Lead Pipeline — 3 cols */}
+          <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2 px-6 py-4 border-b border-slate-100">
+              <BarChart3 size={15} className="text-indigo-500" />
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900">Lead Pipeline</h3>
+                <p className="text-xs text-slate-400">By sales stage</p>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              {loading
+                ? [1, 2, 3, 4].map(i => <SkeletonBar key={i} />)
+                : stageCounts.length > 0
+                  ? stageCounts.map((s, idx) => {
+                      const pct = Math.round((s.count / maxStage) * 100);
+                      const displayPct = summary.totalLeads > 0 ? Math.round((s.count / summary.totalLeads) * 100) : 0;
+                      const c = COLORS.stage[idx % COLORS.stage.length];
+                      return (
+                        <div key={s.label}>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center gap-2">
+                              <span className={cn('w-2 h-2 rounded-full flex-shrink-0', c.bar)} />
+                              <span className="text-sm text-slate-700 font-medium">{s.label}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-bold text-slate-900">{s.count}</span>
+                              <span className={cn('text-[10px] font-semibold px-1.5 py-0.5 rounded-full', c.light, c.text)}>
+                                {displayPct}%
+                              </span>
+                            </div>
                           </div>
-                        ))}
-                        {(team.members?.length || 0) > 3 && (
-                          <div className="w-7 h-7 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-500">
-                            +{(team.members?.length || 0) - 3}
+                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${pct}%` }}
+                              transition={{ duration: 0.7, delay: idx * 0.07, ease: 'easeOut' }}
+                              className={cn('h-full rounded-full', c.bar)}
+                            />
                           </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-8 py-4">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-black text-slate-900">{teamLeads}</span>
-                        <span className="text-[10px] text-slate-400 font-bold">Leads</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-amber-500 rounded-full" style={{ width: `${efficiency}%` }} />
                         </div>
-                        <span className="text-[10px] font-black text-slate-500">{efficiency}%</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-4 text-right">
-                      <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-wider">
-                        <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                        Stable
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      );
+                    })
+                  : (
+                    <div className="py-16 flex flex-col items-center text-slate-300">
+                      <AlertCircle size={32} strokeWidth={1.5} />
+                      <p className="text-sm mt-2 font-medium">No data for this period</p>
+                    </div>
+                  )
+              }
+            </div>
+          </div>
+
+          {/* Source Distribution — 2 cols */}
+          <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2 px-6 py-4 border-b border-slate-100">
+              <PieChart size={15} className="text-violet-500" />
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900">Lead Sources</h3>
+                <p className="text-xs text-slate-400">Where leads come from</p>
+              </div>
+            </div>
+            <div className="p-6 space-y-3">
+              {loading
+                ? [1, 2, 3].map(i => <SkeletonBar key={i} />)
+                : sourceCounts.length > 0
+                  ? sourceCounts.map((s, idx) => {
+                      const pct = summary.totalLeads > 0 ? Math.round((s.count / summary.totalLeads) * 100) : 0;
+                      const c = COLORS.stage[idx % COLORS.stage.length];
+                      return (
+                        <div key={s.label} className="flex items-center gap-3">
+                          <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-xs font-bold', c.light, c.text)}>
+                            {s.label.slice(0, 2).toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="text-xs font-medium text-slate-700 truncate">{s.label}</span>
+                              <span className="text-xs font-bold text-slate-900 ml-2">{s.count}</span>
+                            </div>
+                            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${pct}%` }}
+                                transition={{ duration: 0.7, delay: idx * 0.07 }}
+                                className={cn('h-full rounded-full', c.bar)}
+                              />
+                            </div>
+                          </div>
+                          <span className={cn('text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0', c.light, c.text)}>
+                            {pct}%
+                          </span>
+                        </div>
+                      );
+                    })
+                  : (
+                    <div className="py-16 flex flex-col items-center text-slate-300">
+                      <AlertCircle size={28} strokeWidth={1.5} />
+                      <p className="text-xs mt-2 font-medium">No source data</p>
+                    </div>
+                  )
+              }
+            </div>
+          </div>
         </div>
-      </motion.div>
+
+        {/* ── Bottom Row ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+          {/* Site Performance */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2 px-6 py-4 border-b border-slate-100">
+              <Building2 size={15} className="text-emerald-500" />
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900">Site Performance</h3>
+                <p className="text-xs text-slate-400">Leads per project</p>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              {loading
+                ? [1, 2, 3].map(i => <SkeletonBar key={i} />)
+                : sitePerformance.length > 0
+                  ? sitePerformance.map((site, idx) => {
+                      const pct = Math.round((site.count / maxSite) * 100);
+                      return (
+                        <div key={site.label}>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-md bg-emerald-50 flex items-center justify-center">
+                                <Building2 size={11} className="text-emerald-600" />
+                              </div>
+                              <span className="text-sm text-slate-700 font-medium truncate max-w-[160px]">{site.label}</span>
+                            </div>
+                            <span className="text-sm font-bold text-slate-900">{site.count} leads</span>
+                          </div>
+                          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${pct}%` }}
+                              transition={{ duration: 0.7, delay: idx * 0.07 }}
+                              className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
+                            />
+                          </div>
+                        </div>
+                      );
+                    })
+                  : (
+                    <div className="py-12 flex flex-col items-center text-slate-300">
+                      <AlertCircle size={28} strokeWidth={1.5} />
+                      <p className="text-xs mt-2 font-medium">No site data</p>
+                    </div>
+                  )
+              }
+            </div>
+          </div>
+
+          {/* Agent Performance */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2 px-6 py-4 border-b border-slate-100">
+              <Activity size={15} className="text-amber-500" />
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900">Agent Performance</h3>
+                <p className="text-xs text-slate-400">Leads handled per agent</p>
+              </div>
+            </div>
+            <div className="divide-y divide-slate-50">
+              {loading
+                ? (
+                  <div className="p-6 space-y-4">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="animate-pulse flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-slate-100" />
+                        <div className="flex-1 space-y-1.5">
+                          <div className="h-3 bg-slate-100 rounded w-32" />
+                          <div className="h-2 bg-slate-100 rounded w-full" />
+                        </div>
+                        <div className="h-3 bg-slate-100 rounded w-8" />
+                      </div>
+                    ))}
+                  </div>
+                )
+                : agentCounts.length > 0
+                  ? agentCounts.map((agent, idx) => {
+                      const pct = summary.totalLeads > 0 ? Math.round((agent.count / summary.totalLeads) * 100) : 0;
+                      const avatarColors = [
+                        'bg-indigo-100 text-indigo-700',
+                        'bg-violet-100 text-violet-700',
+                        'bg-amber-100 text-amber-700',
+                        'bg-rose-100 text-rose-700',
+                        'bg-sky-100 text-sky-700',
+                      ];
+                      return (
+                        <div key={agent.label} className="flex items-center gap-3 px-6 py-3 hover:bg-slate-50 transition-colors">
+                          <div className={cn('w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0', avatarColors[idx % avatarColors.length])}>
+                            {agent.label[0]?.toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-medium text-slate-800 truncate">{agent.label}</span>
+                              <span className="text-xs font-bold text-slate-900 ml-2">{agent.count}</span>
+                            </div>
+                            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${pct}%` }}
+                                transition={{ duration: 0.7, delay: idx * 0.07 }}
+                                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400"
+                              />
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-semibold text-slate-400 w-8 text-right flex-shrink-0">{pct}%</span>
+                        </div>
+                      );
+                    })
+                  : (
+                    <div className="py-12 flex flex-col items-center text-slate-300">
+                      <AlertCircle size={28} strokeWidth={1.5} />
+                      <p className="text-xs mt-2 font-medium">No agent data</p>
+                    </div>
+                  )
+              }
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
