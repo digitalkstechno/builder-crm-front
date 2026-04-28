@@ -18,7 +18,8 @@ import {
   CreditCard,
   BookOpen,
   ExternalLink,
-  Globe
+  Globe,
+  Image as ImageIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -111,18 +112,16 @@ export default function Sidebar() {
   const initials = name.split(' ').map((n: string) => n[0]).join('').toUpperCase();
   const company = mounted && builder?.companyName ? builder.companyName : "Loading...";
 
+  const logoUrl = mounted && builder?.sidebarLogo
+    ? (builder.sidebarLogo.startsWith('http')
+      ? builder.sidebarLogo
+      : `${process.env.NEXT_PUBLIC_SOCKET_URL || ''}${builder.sidebarLogo}`)
+    : "/logo.png";
+
   return (
     <aside className="w-56 bg-white border-r border-slate-200 flex flex-col fixed inset-y-0 z-50">
-      <div className="p-4 border-b border-slate-50">
-        <div className="flex items-center gap-2.5">
-          <img src="/favicon.png" alt="Logo" className="w-8 h-8 rounded-lg object-contain shadow-md shadow-indigo-100" />
-          <div className="min-w-0 flex-1">
-            <h1 className="font-semibold text-slate-900 leading-tight text-sm">builderscrm.in</h1>
-            <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50/50 px-1.5 py-0.5 rounded block truncate">
-              {company}
-            </span>
-          </div>
-        </div>
+      <div className="h-14 border-b border-slate-50 flex items-center justify-center px-4">
+        <img src={logoUrl} alt="Logo" className="max-h-10 max-w-full object-contain" />
       </div>
 
       <nav className="flex-1 p-3 space-y-6 overflow-y-auto custom-scrollbar">
@@ -132,6 +131,8 @@ export default function Sidebar() {
             <SidebarItem icon={LayoutDashboard} label="Dashboard" href="/dashboard" />
           </div>
         )}
+
+        
 
         <div>
           <p className="px-3 text-[11px] font-bold text-slate-400 mb-2">CRM</p>
@@ -170,6 +171,12 @@ export default function Sidebar() {
               </div>
             </div>
           </>
+        )}
+        {mounted && user?.role === 'BUILDER' && (
+          <div>
+            <p className="px-3 text-[11px] font-bold text-slate-400 mb-2">Logo</p>
+            <SidebarItem icon={ImageIcon} label="Add Logo" href="/manage-logo" />
+          </div>
         )}
       </nav>
 
